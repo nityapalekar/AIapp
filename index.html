@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trend2Stage</title>
+    <meta name="description" content="Trend2Stage is a premium choreography studio for viral dance routines, remix creation, practice drills, memory training and stage formation building.">
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #090b14;
+            --surface: rgba(22, 28, 46, 0.95);
+            --surface-strong: rgba(9, 11, 20, 0.98);
+            --border: rgba(255,255,255,0.08);
+            --text: #f8fbff;
+            --muted: #a0aac4;
+            --accent: #7d8bff;
+            --accent-soft: #5bb0ff;
+            --accent-alt: #ff7db9;
+            --success: #4ade80;
+            --danger: #fb7185;
+            --shadow: 0 24px 80px rgba(0,0,0,.2);
+            font-family: Inter, system-ui, sans-serif;
+        }
+        body{margin:0;background:#050713;color:var(--text);min-height:100vh;}
+        *,*::before,*::after{box-sizing:border-box;}
+        button,select{font:inherit;}
+        img{max-width:100%;display:block;}
+        .page{padding:1rem;max-width:1120px;margin:0 auto;}
+        .topbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 0;}
+        .brand{display:flex;flex-direction:column;gap:.25rem;}
+        .brand strong{font-size:1.2rem;letter-spacing:.04em;color:var(--accent);}
+        .brand span{font-size:.85rem;color:var(--muted);}
+        .badge{display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .75rem;border-radius:999px;border:1px solid rgba(255,255,255,.08);font-size:.78rem;color:var(--text);background:rgba(255,255,255,.04);}
+        .badge.positive{color:var(--success);border-color:rgba(74,222,128,.2);background:rgba(74,222,128,.08);}
+        .toggle{border:1px solid var(--border);background:transparent;color:var(--text);border-radius:999px;padding:.75rem 1rem;cursor:pointer;}
+        .hero{display:grid;gap:1.25rem;margin:1rem 0 1.5rem;}
+        .hero h1{font-size:2rem;line-height:1.05;margin:0;}
+        .hero p{max-width:56ch;color:var(--muted);line-height:1.7;}
+        .grid{display:grid;gap:1rem;}
+        .card{background:var(--surface);border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow);overflow:hidden;}
+        .card header{padding:1rem 1rem .5rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;}
+        .card header h2{font-size:1rem;margin:0;}
+        .card header p{margin:.35rem 0 0;color:var(--muted);font-size:.9rem;}
+        .card-body{padding:1rem;display:grid;gap:1rem;}
+        .pill{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .75rem;border-radius:999px;border:1px solid rgba(255,255,255,.08);font-size:.75rem;background:rgba(255,255,255,.05);}
+        .chip-bar{display:flex;flex-wrap:wrap;gap:.65rem;}
+        .chip{cursor:pointer;padding:.65rem 1rem;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);transition:transform .2s ease,background .2s ease;}
+        .chip.active{background:rgba(125,139,255,.16);border-color:rgba(125,139,255,.36);color:var(--accent);transform:translateY(-1px);}
+        .feed-grid{display:grid;gap:1rem;}
+        .trend-card{display:flex;flex-direction:column;gap:.85rem;padding:1rem;border:1px solid var(--border);border-radius:24px;background:rgba(10,13,26,.95);cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;}
+        .trend-card:hover{transform:translateY(-3px);box-shadow:0 30px 50px rgba(0,0,0,.18);}
+        .trend-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;}
+        .trend-name{font-size:1rem;font-weight:700;line-height:1.2;}
+        .meta{display:flex;flex-wrap:wrap;gap:.5rem;font-size:.78rem;color:var(--muted);}
+        .preview{height:160px;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,rgba(125,139,255,.24),rgba(255,125,185,.18));position:relative;}
+        .preview::before{content:'';position:absolute;inset:0;background:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"%3E%3Ccircle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2" stroke-dasharray="8 8"/%3E%3C/svg%3E') center/contain no-repeat;}
+        .preview span{position:absolute;left:1rem;bottom:1rem;color:#fff;font-weight:700;font-size:.95rem;text-shadow:0 10px 30px rgba(0,0,0,.45);}
+        .section-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;}
+        .tab-btn{border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);padding:.85rem 1rem;border-radius:16px;cursor:pointer;text-align:center;white-space:nowrap;}
+        .tab-btn.active{background:rgba(125,139,255,.16);border-color:rgba(125,139,255,.38);color:var(--accent);}
+        .section-panel{padding:1rem;background:var(--surface);border:1px solid var(--border);border-radius:24px;}
+        .panel-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;}
+        .panel-header h3{margin:0;font-size:1.05rem;}
+        .list-group{display:grid;gap:.85rem;}
+        .step-card{padding:1rem;border-radius:20px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);}
+        .step-card strong{display:block;color:var(--accent);margin-bottom:.5rem;}
+        .step-meta{display:flex;flex-wrap:wrap;gap:.75rem;font-size:.8rem;color:var(--muted);margin: .5rem 0;}
+        .step-notes{line-height:1.6;color:var(--text);}
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;padding:.85rem 1rem;border-radius:16px;border:1px solid transparent;cursor:pointer;transition:.2s ease;}
+        .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-soft));color:#07101f;box-shadow:0 18px 40px rgba(125,139,255,.22);}
+        .btn.secondary{background:rgba(255,255,255,.05);border-color:var(--border);color:var(--text);}
+        .btn.small{padding:.65rem .95rem;font-size:.86rem;}
+        .split{display:grid;gap:1rem;}
+        .info-grid{display:grid;gap:.75rem;}
+        .info-pill{padding:.8rem 1rem;border-radius:18px;border:1px solid var(--border);background:rgba(255,255,255,.03);font-size:.9rem;color:var(--muted);}
+        .section-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.9rem 1rem;border-radius:18px;border:1px solid var(--border);background:rgba(255,255,255,.02);}
+        .section-row strong{font-weight:700;display:block;}
+        .tag{display:inline-flex;padding:.35rem .65rem;border-radius:999px;background:rgba(255,255,255,.05);color:var(--muted);font-size:.75rem;}
+        .practice-card{display:grid;gap:1rem;}
+        .media-card{position:relative;height:210px;border-radius:24px;overflow:hidden;background:linear-gradient(135deg,rgba(255,125,185,.18),rgba(91,176,255,.18));border:1px solid var(--border);}
+        .media-card .play{position:absolute;inset:0;display:grid;place-items:center;font-size:2.5rem;color:#fff;mix-blend-mode:screen;}
+        .controls{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;}
+        .toggle-group{display:flex;gap:.75rem;flex-wrap:wrap;}
+        .metric{display:flex;flex-direction:column;gap:.25rem;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:20px;padding:1rem;}
+        .metric span{font-size:.75rem;color:var(--muted);}
+        .metric strong{font-size:1.2rem;}
+        .memory-grid{display:grid;gap:.85rem;}
+        .memory-card{padding:1rem;border-radius:22px;border:1px solid var(--border);background:rgba(255,255,255,.02);}
+        .progress-ring{display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-weight:700;color:var(--accent);}
+        .formation-canvas{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;padding:1rem;background:rgba(255,255,255,.03);border-radius:24px;border:1px solid var(--border);}
+        .stage-cell{aspect-ratio:1/1;border-radius:16px;border:1px dashed rgba(255,255,255,.12);display:grid;place-items:center;cursor:pointer;position:relative;background:rgba(255,255,255,.01);}
+        .stage-cell.active{background:rgba(125,139,255,.16);border-color:rgba(125,139,255,.4);}
+        .stage-cell span{font-size:.85rem;color:var(--text);}
+        .saved-list{display:grid;gap:.85rem;}
+        .saved-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem;border-radius:20px;background:rgba(255,255,255,.02);border:1px solid var(--border);}
+        .saved-row strong{display:block;}
+        .empty-state{padding:2rem 1rem;border-radius:24px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);color:var(--muted);text-align:center;}
+        .overlay{position:fixed;inset:0;background:rgba(4,7,18,.7);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:1rem;z-index:20;}
+        .overlay.active{display:flex;}
+        .modal{width:min(520px,100%);background:var(--surface-strong);border:1px solid var(--border);border-radius:28px;box-shadow:var(--shadow);padding:1.5rem;}
+        .modal h3{margin:0 0 1rem;}
+        .modal p{color:var(--muted);line-height:1.7;}
+        .close{position:absolute;top:1rem;right:1rem;border:none;background:transparent;color:var(--muted);font-size:1.25rem;cursor:pointer;}
+        @media(min-width:900px){.hero{grid-template-columns:1.2fr .8fr;align-items:start;} .section-tabs{grid-template-columns:repeat(5,1fr);} .split{grid-template-columns:1fr 1fr;}.feed-grid{grid-template-columns:repeat(2,1fr);} .card{min-height:0;}}        
+    </style>
+</head>
+<body>
+    <div class="page" id="app">
+        <div class="topbar">
+            <div class="brand">
+                <strong>Trend2Stage</strong>
+                <span>Choreography studio for viral dance trends</span>
+            </div>
+            <button class="toggle" id="modeToggle">Light mode</button>
+        </div>
+
+        <section class="hero">
+            <div>
+                <h1>Turn viral dances into crafted stage routines.</h1>
+                <p>Discover trending TikTok and Reel choreography, learn original sections, remix your own version, remember the routine, and lock your final stage formation.</p>
+                <div class="chip-bar" id="heroChips"></div>
+            </div>
+            <div class="card">
+                <header>
+                    <div>
+                        <h2>Today’s Trending Regions</h2>
+                        <p>A premium spotlight on the latest global dance influences.</p>
+                    </div>
+                    <span class="badge positive">Creative</span>
+                </header>
+                <div class="card-body" id="regionWidget"></div>
+            </div>
+        </section>
+
+        <section class="card">
+            <header>
+                <div>
+                    <h2>Trending Dance Feed</h2>
+                    <p>Browse routines by region, style and difficulty.</p>
+                </div>
+                <span class="badge">{ 4 routines }</span>
+            </header>
+            <div class="card-body">
+                <div class="chip-bar" id="filterChips"></div>
+                <div class="feed-grid" id="feed"></div>
+            </div>
+        </section>
+
+        <section class="card" id="detailPanel" style="display:none;">
+            <header>
+                <div>
+                    <h2 id="detailTitle">Trend name</h2>
+                    <p id="detailSubtitle">Song • Artist • Region</p>
+                </div>
+                <div class="badge positive" id="remixBadge">Most remixed</div>
+            </header>
+            <div class="card-body">
+                <div class="info-grid">
+                    <div class="info-pill" id="infoStyle">Style</div>
+                    <div class="info-pill" id="infoRegion">Region</div>
+                    <div class="info-pill" id="infoDifficulty">Difficulty</div>
+                    <div class="info-pill" id="infoTrend">Trending category</div>
+                </div>
+                <div class="split">
+                    <div>
+                        <div class="section-panel">
+                            <div class="panel-header"><h3>Why it’s trending</h3></div>
+                            <p id="trendWhy"></p>
+                        </div>
+                        <div class="section-panel">
+                            <div class="panel-header"><h3>Overview</h3></div>
+                            <p id="detailOverview"></p>
+                        </div>
+                    </div>
+                    <div class="section-panel">
+                        <div class="panel-header"><h3>Original Routine</h3><span class="tag" id="sectionCount"></span></div>
+                        <p id="overviewHint">Move through each section to master the counts and notes.</p>
+                    </div>
+                </div>
+                <div class="section-tabs" id="detailTabs"></div>
+                <div class="section-panel" id="tabContent"></div>
+            </div>
+        </section>
+
+        <section class="card" id="savedPanel" style="display:none;">
+            <header>
+                <div>
+                    <h2>Saved Routines Dashboard</h2>
+                    <p>Review saved remixes, favorite formation endings, and in-progress routines.</p>
+                </div>
+                <button class="btn secondary small" id="clearSaved">Clear all</button>
+            </header>
+            <div class="card-body">
+                <div class="saved-list" id="savedList"></div>
+            </div>
+        </section>
+    </div>
+
+    <div class="overlay" id="modalOverlay">
+        <div class="modal">
+            <button class="close" id="closeModal">×</button>
+            <h3 id="modalTitle">Saved</h3>
+            <p id="modalMessage">Your choreography has been stored.</p>
+            <div style="margin-top:1rem;text-align:right;"><button class="btn primary" id="closeModalBtn">Got it</button></div>
+        </div>
+    </div>
+
+    <script>
+        const app = document.getElementById('app');
+        const feedEl = document.getElementById('feed');
+        const filterChips = document.getElementById('filterChips');
+        const heroChips = document.getElementById('heroChips');
+        const regionWidget = document.getElementById('regionWidget');
+        const detailPanel = document.getElementById('detailPanel');
+        const savedPanel = document.getElementById('savedPanel');
+        const savedList = document.getElementById('savedList');
+        const detailTabs = document.getElementById('detailTabs');
+        const tabContent = document.getElementById('tabContent');
+        const clearSaved = document.getElementById('clearSaved');
+        const modal = document.getElementById('modalOverlay');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const closeModal = document.getElementById('closeModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modeToggle = document.getElementById('modeToggle');
+        const detailTitle = document.getElementById('detailTitle');
+        const detailSubtitle = document.getElementById('detailSubtitle');
+        const trendWhy = document.getElementById('trendWhy');
+        const detailOverview = document.getElementById('detailOverview');
+        const infoStyle = document.getElementById('infoStyle');
+        const infoRegion = document.getElementById('infoRegion');
+        const infoDifficulty = document.getElementById('infoDifficulty');
+        const infoTrend = document.getElementById('infoTrend');
+        const sectionCount = document.getElementById('sectionCount');
+        const overviewHint = document.getElementById('overviewHint');
+        const remixBadge = document.getElementById('remixBadge');
+
+        const tabs = ['Original Steps','My Remix','Practice','Memory Mode','Formation'];
+
+        const dances = [
+            {
+                id:'neo-wave',
+                trend:'Neo-Wave Flow',
+                song:'Starfire',
+                artist:'Luna Pulse',
+                region:'K-pop inspired',
+                style:'Artistic Wave',
+                difficulty:'Intermediate',
+                category:'Visual Trend',
+                why:'A hybrid of futuristic footwork and expressive hand tracing created for cinematic reel edits.',
+                overview:'This dance splits into five sections with sharp beats and fluid transitions, designed for studio crews who want a stage-ready sparkle.',
+                sections:[
+                    {title:'Intro Ripples',counts:'8','timing':'0:00-0:10','notes':'Flowing arm waves with shoulder isolations, ending in a shoulder pop.','difficulty':'Medium'},
+                    {title:'Pulse Step',counts:'8','timing':'0:10-0:18','notes':'Step-touch with chest pulses and a clean body roll timing the snare hits.','difficulty':'Medium'},
+                    {title:'Orbit Turn',counts:'8','timing':'0:18-0:26','notes':'360-degree turn with a slide, finishing with a low head tilt.', 'difficulty':'Intermediate'},
+                    {title:'Spotlight Hold',counts:'8','timing':'0:26-0:34','notes':'Freeze pose with layered hand framing and a slow reveal to camera.', 'difficulty':'Intermediate'},
+                    {title:'Final Flick',counts:'8','timing':'0:34-0:42','notes':'Fast wrist flicks then a dramatic jump to close.', 'difficulty':'Hard'}
+                ],
+                formation:{type:'Group',label:'Mirror Diamond',positions:[0,2,4,7,9],notes:'Symmetric diamond with two wings and center focus.'},
+                practice:{countdown:5,slow:'0.75x',mirror:false,fav:'Spotlight Hold'},
+                memory:{confidence:72,quiz:'What comes after Pulse Step?',options:['Orbit Turn','Final Flick','Intro Ripples'],answer:'Orbit Turn'}
+            },
+            {
+                id:'afro-fusion',
+                trend:'Afro-Fusion Beat',
+                song:'Sunrise Riot',
+                artist:'Mimi K',
+                region:'West Africa',
+                style:'Afrobeats Groove',
+                difficulty:'Beginner',
+                category:'Rhythm Wave',
+                why:'A joyful groove built on grounded footwork and celebratory hip motion popular for collaborative duets.',
+                overview:'The routine uses repetitive looped sections that make it easy to learn while still delivering a polished rehearsal-ready choreography.',
+                sections:[
+                    {title:'Ground Pulse',counts:'8','timing':'0:00-0:08','notes':'Low step cross with waist rolls and soft bounce.', 'difficulty':'Beginner'},
+                    {title:'Horizon Slide',counts:'8','timing':'0:08-0:16','notes':'Side slide with two-hook arm accents and head snaps.', 'difficulty':'Beginner'},
+                    {title:'Spark Turn',counts:'8','timing':'0:16-0:24','notes':'Full turn with a shoulder shimmy before landing.', 'difficulty':'Beginner'},
+                    {title:'Crown Pose',counts:'8','timing':'0:24-0:32','notes':'Wide stance hold with hand crown motif.', 'difficulty':'Beginner'},
+                ],
+                formation:{type:'Duet',label:'Side-by-side wave',positions:[1,3],notes:'Two dancers mirror each other with a shared center focus.'},
+                practice:{countdown:3,slow:'0.8x',mirror:true,fav:'Spark Turn'},
+                memory:{confidence:86,quiz:'Which section has the Crown Pose?',options:['Second','Fourth','First'],answer:'Fourth'}
+            },
+            {
+                id:'latin-splash',
+                trend:'Latin Splash',
+                song:'Calor',
+                artist:'Rosa Azul',
+                region:'Latin Pop',
+                style:'Salsa Pop',
+                difficulty:'Advanced',
+                category:'Stage Anthem',
+                why:'A celebration-friendly routine with sharp salsa accents and theatrical finale moments.',
+                overview:'Designed for performers who want a warm crowd response, this routine layers original salsa moves with modern reel-ready poses.',
+                sections:[
+                    {title:'Heat Step',counts:'8','timing':'0:00-0:09','notes':'Sharp cross step with hips and dramatic arm extensions.', 'difficulty':'Intermediate'},
+                    {title:'Flare Lift',counts:'8','timing':'0:09-0:18','notes':'Partner-inspired lift prep motion, low center of gravity.', 'difficulty':'Advanced'},
+                    {title:'Tempo Twist',counts:'8','timing':'0:18-0:27','notes':'Fast foot turns paired with body isolations.', 'difficulty':'Advanced'},
+                    {title:'Final Blaze',counts:'8','timing':'0:27-0:36','notes':'Hit the downbeat with a final stage-ready pose.', 'difficulty':'Advanced'},
+                ],
+                formation:{type:'Trio',label:'Flare Triangle',positions:[0,2,4],notes:'Triangle shape with energetic center lead.'},
+                practice:{countdown:4,slow:'0.7x',mirror:false,fav:'Tempo Twist'},
+                memory:{confidence:58,quiz:'What is the section after Heat Step?',options:['Flare Lift','Tempo Twist','Final Blaze'],answer:'Flare Lift'}
+            },
+            {
+                id:'hiphop-surge',
+                trend:'Surge Circuit',
+                song:'Drop Zone',
+                artist:'Grey Pulse',
+                region:'US Hip-Hop',
+                style:'Street Circuit',
+                difficulty:'Hard',
+                category:'Battle Ready',
+                why:'A raw street-inspired routine made for performance battles and rehearsal runs.',
+                overview:'The choreography layers syncopated footwork with strong freestyle fragments to make a memorable routine.',
+                sections:[
+                    {title:'Kick Launch',counts:'8','timing':'0:00-0:10','notes':'Powerful kick pattern with hand flicks.', 'difficulty':'Hard'},
+                    {title:'Circuit Roll',counts:'8','timing':'0:10-0:20','notes':'Body roll sequence with quick floor prep.', 'difficulty':'Hard'},
+                    {title:'Break Pulse',counts:'8','timing':'0:20-0:30','notes':'Stuttering step touches with audience-facing lock.', 'difficulty':'Hard'},
+                    {title:'Climax Hit',counts:'8','timing':'0:30-0:40','notes':'Strong conclusion with spread arms and a low finish.', 'difficulty':'Hard'},
+                ],
+                formation:{type:'Group',label:'Battle Line',positions:[0,1,3,4],notes:'Line formation that opens to a staggered final pose.'},
+                practice:{countdown:2,slow:'0.85x',mirror:true,fav:'Circuit Roll'},
+                memory:{confidence:64,quiz:'Which section creates the lowest finish?',options:['Kick Launch','Break Pulse','Climax Hit'],answer:'Climax Hit'}
+            }
+        ];
+
+        const state = {
+            filters:{region:'All',style:'All',difficulty:'All',category:'All'},
+            selected:null,
+            activeTab:'Original Steps',
+            remixDraft:{},
+            formations:JSON.parse(localStorage.getItem('trend2stageFormations')||'[]'),
+            remixes:JSON.parse(localStorage.getItem('trend2stageRemixes')||'[]'),
+            finals:JSON.parse(localStorage.getItem('trend2stageFinals')||'[]')
+        };
+
+        const categories = ['All','K-pop inspired','West Africa','Latin Pop','US Hip-Hop'];
+        const styles = ['All','Artistic Wave','Afrobeats Groove','Salsa Pop','Street Circuit'];
+        const difficulties = ['All','Beginner','Intermediate','Advanced','Hard'];
+        const trending = ['Visual Trend','Rhythm Wave','Stage Anthem','Battle Ready'];
+
+        const renderChips = () => {
+            heroChips.innerHTML = categories.slice(1).map(region=>`<button class="chip${state.filters.region===region?' active':''}" data-filter="region" data-value="${region}">${region}</button>`).join('');
+            filterChips.innerHTML = ['All','Region','Style','Difficulty','Trending'].map(group=>`<button class="chip" disabled>${group}</button>`).join('');
+            const filterExtras = categories.map(region=>`<button class="chip${state.filters.region===region?' active':''}" data-filter="region" data-value="${region}">${region}</button>`).join('');
+            const styleExtras = styles.map(style=>`<button class="chip${state.filters.style===style?' active':''}" data-filter="style" data-value="${style}">${style}</button>`).join('');
+            const diffExtras = difficulties.map(level=>`<button class="chip${state.filters.difficulty===level?' active':''}" data-filter="difficulty" data-value="${level}">${level}</button>`).join('');
+            const trendExtras = trending.map(value=>`<button class="chip${state.filters.category===value?' active':''}" data-filter="category" data-value="${value}">${value}</button>`).join('');
+            filterChips.innerHTML = `<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem">${filterExtras}${styleExtras}${diffExtras}${trendExtras}</div>`;
+            document.querySelectorAll('.chip[data-filter]').forEach(btn=>btn.addEventListener('click',e=>{const {filter,value}=e.target.dataset; state.filters[filter]=value; renderFeed(); renderChips();}));
+        };
+
+        const filterDances = () => dances.filter(d=>{
+            const byRegion = state.filters.region==='All' || d.region===state.filters.region;
+            const byStyle = state.filters.style==='All' || d.style===state.filters.style;
+            const byDifficulty = state.filters.difficulty==='All' || d.difficulty===state.filters.difficulty;
+            const byCategory = state.filters.category==='All' || d.category===state.filters.category;
+            return byRegion && byStyle && byDifficulty && byCategory;
+        });
+
+        const renderFeed = () => {
+            const items = filterDances();
+            feedEl.innerHTML = items.map(d=>`
+                <article class="trend-card" data-id="${d.id}">
+                    <div class="trend-head">
+                        <div>
+                            <div class="trend-name">${d.trend}</div>
+                            <p>${d.song} • ${d.artist}</p>
+                        </div>
+                        <span class="badge">${d.difficulty}</span>
+                    </div>
+                    <div class="meta">
+                        <span>${d.region}</span><span>${d.style}</span><span>${d.category}</span>
+                    </div>
+                    <div class="preview"><span>${d.trend}</span></div>
+                </article>`).join('');
+            if(!items.length) feedEl.innerHTML='<div class="empty-state">No routines match these filters. Reset or try another region.</div>';
+            document.querySelectorAll('.trend-card').forEach(card=>card.addEventListener('click',()=>openDetail(card.dataset.id)));
+        };
+
+        const renderRegionWidget = () => {
+            const regionCounts = categories.slice(1).map(region=>({region,count:dances.filter(d=>d.region===region).length}));
+            regionWidget.innerHTML = regionCounts.map(item=>`
+                <div class="section-row"><div><strong>${item.region}</strong><span>${item.count} trending routine(s)</span></div></div>
+            `).join('');
+        };
+
+        const openDetail = id => {
+            const dance = dances.find(item=>item.id===id);
+            if(!dance) return;
+            state.selected = dance;
+            state.activeTab = 'Original Steps';
+            detailPanel.style.display='block';
+            savedPanel.style.display='block';
+            detailTitle.textContent=dance.trend;
+            detailSubtitle.textContent=`${dance.song} • ${dance.artist} • ${dance.region}`;
+            trendWhy.textContent=dance.why;
+            detailOverview.textContent=dance.overview;
+            infoStyle.textContent=dance.style;
+            infoRegion.textContent=dance.region;
+            infoDifficulty.textContent=dance.difficulty;
+            infoTrend.textContent=dance.category;
+            sectionCount.textContent=`${dance.sections.length} sections`;
+            remixBadge.textContent = dance.category==='Visual Trend' ? 'Most remixed' : 'Studio pick';
+            renderDetailTabs();
+            renderSaved();
+            window.scrollTo({top:0,behavior:'smooth'});
+        };
+
+        const renderDetailTabs = () => {
+            detailTabs.innerHTML = tabs.map(tab=>`<button class="tab-btn${state.activeTab===tab?' active':''}" data-tab="${tab}">${tab}</button>`).join('');
+            detailTabs.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',e=>{state.activeTab=e.target.dataset.tab; renderDetailView(); renderDetailTabs();}));
+            renderDetailView();
+        };
+
+        const renderDetailView = () => {
+            if(!state.selected) return;
+            const dance = state.selected;
+            const remixItem = state.remixes.find(item=>item.id===dance.id) || {sections:dance.sections.map(s=>({...s,custom:false}))};
+            const formationSaved = state.finals.find(item=>item.id===dance.id);
+            if(state.activeTab==='Original Steps') {
+                tabContent.innerHTML = `
+                    <div class="list-group">${dance.sections.map((section,i)=>`
+                        <div class="step-card">
+                            <strong>${section.title}</strong>
+                            <div class="step-meta"><span>${section.counts}</span><span>${section.timing}</span><span>${section.difficulty}</span></div>
+                            <p class="step-notes">${section.notes}</p>
+                            <button class="btn secondary small" data-action="copy" data-index="${i}">Copy to Remix</button>
+                        </div>
+                    `).join('')}</div>
+                `;
+                tabContent.querySelectorAll('[data-action="copy"]').forEach(btn=>btn.addEventListener('click',e=>copySection(e.target.dataset.index)));
+            }
+            if(state.activeTab==='My Remix') {
+                tabContent.innerHTML = `
+                    <div class="practice-card">
+                        <div class="panel-header"><h3>Your remix sections</h3><button class="btn primary small" id="addSection">Add section</button></div>
+                        <div class="list-group">${remixItem.sections.map((section,i)=>`
+                            <div class="step-card" data-remix-index="${i}">
+                                <strong>${section.title} ${section.custom?'<span class="tag">custom</span>':'<span class="tag">original</span>'}</strong>
+                                <div class="step-meta"><span>${section.counts}</span><span>${section.timing}</span><span>${section.difficulty}</span></div>
+                                <textarea rows="3" style="width:100%;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:var(--text);padding:.8rem;resize:vertical;" data-edit-index="${i}">${section.notes}</textarea>
+                                <div style="display:flex;gap:.65rem;flex-wrap:wrap;margin-top:.75rem;"><button class="btn secondary small" data-action="toggle" data-index="${i}">${section.custom?'Mark original':'Mark custom'}</button><button class="btn secondary small" data-action="remove" data-index="${i}">Remove</button></div>
+                            </div>
+                        `).join('')}</div>
+                        <button class="btn primary" id="saveRemix">Save Remix</button>
+                    </div>
+                `;
+                document.getElementById('addSection').addEventListener('click',addRemixSection);
+                document.getElementById('saveRemix').addEventListener('click',saveRemix);
+                tabContent.querySelectorAll('[data-edit-index]').forEach(el=>el.addEventListener('input',e=>updateRemixNotes(e)));
+                tabContent.querySelectorAll('[data-action="toggle"]').forEach(btn=>btn.addEventListener('click',e=>toggleSection(e.target.dataset.index)));
+                tabContent.querySelectorAll('[data-action="remove"]').forEach(btn=>btn.addEventListener('click',e=>removeSection(e.target.dataset.index)));
+            }
+            if(state.activeTab==='Practice') {
+                tabContent.innerHTML = `
+                    <div class="practice-card">
+                        <div class="media-card"><span class="play">▶</span></div>
+                        <div class="controls">
+                            <button class="btn secondary">Play</button>
+                            <button class="btn secondary">Pause</button>
+                        </div>
+                        <div class="toggle-group">
+                            <button class="btn secondary small">Loop section</button>
+                            <button class="btn secondary small">Slow motion</button>
+                            <button class="btn secondary small">Mirror mode</button>
+                        </div>
+                        <div class="metric"><span>Countdown</span><strong>${dance.practice.countdown}s</strong></div>
+                        <div class="metric"><span>Favorite difficult part</span><strong>${dance.practice.fav}</strong></div>
+                        <div class="metric"><span>Slow speed</span><strong>${dance.practice.slow}</strong></div>
+                    </div>
+                `;
+            }
+            if(state.activeTab==='Memory Mode') {
+                tabContent.innerHTML = `
+                    <div class="memory-grid">
+                        <div class="memory-card"><h4>Routine breakdown</h4><p>Review each section in order and mark what you remember.</p></div>
+                        <div class="memory-card"><div class="progress-ring">${dance.memory.confidence}%</div><p style="margin-top:.75rem;color:var(--muted);">Confidence score based on your rehearsal strength.</p></div>
+                        <div class="memory-card"><h4>Quiz</h4><p>${dance.memory.quiz}</p><div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.8rem;">${dance.memory.options.map(option=>`<button class="btn secondary small" data-quiz="${option}">${option}</button>`).join('')}</div></div>
+                    </div>
+                `;
+                tabContent.querySelectorAll('[data-quiz]').forEach(btn=>btn.addEventListener('click',e=>checkQuiz(e.target.dataset.quiz)));
+            }
+            if(state.activeTab==='Formation') {
+                tabContent.innerHTML = `
+                    <div class="practice-card">
+                        <div class="panel-header"><h3>${dance.formation.type} builder</h3><button class="btn primary small" id="saveFormation">Save final formation</button></div>
+                        <p style="color:var(--muted);">Tap stage cells to place dancers. Choose one final formation as the official ending setup.</p>
+                        <div class="formation-canvas" id="stageCanvas"></div>
+                        <div class="metric"><span>Saved formation</span><strong>${formationSaved?formationSaved.label:'None yet'}</strong></div>
+                    </div>
+                `;
+                buildFormationCanvas(dance, formationSaved);
+                document.getElementById('saveFormation').addEventListener('click',saveFormation);
+            }
+        };
+
+        const copySection = index => {
+            const dance = state.selected;
+            const draft = state.remixes.find(item=>item.id===dance.id);
+            const section = dance.sections[index];
+            if(!draft) state.remixes.push({id:dance.id,sections:dance.sections.map(s=>({...s,custom:false}))});
+            const remix = state.remixes.find(item=>item.id===dance.id);
+            remix.sections.push({...section,custom:true,title:`${section.title} (remix)`,difficulty:'Custom'});
+            saveState();
+            renderDetailView();
+            openModal('Section added','A remix section has been added to your draft.');
+        };
+
+        const addRemixSection = () => {
+            const dance = state.selected;
+            if(!state.remixes.find(item=>item.id===dance.id)) {
+                state.remixes.push({id:dance.id,sections:dance.sections.map(s=>({...s,custom:false}))});
+            }
+            const remix = state.remixes.find(item=>item.id===dance.id);
+            remix.sections.push({title:'New Section',counts:'8',timing:'n/a',notes:'Describe your custom move.',difficulty:'Custom',custom:true});
+            saveState();
+            renderDetailView();
+        };
+
+        const updateRemixNotes = e => {
+            const index = Number(e.target.dataset.editIndex);
+            const remix = state.remixes.find(item=>item.id===state.selected.id);
+            if(remix) remix.sections[index].notes = e.target.value;
+            saveState();
+        };
+
+        const toggleSection = index => {
+            const remix = state.remixes.find(item=>item.id===state.selected.id);
+            if(remix) {
+                remix.sections[index].custom = !remix.sections[index].custom;
+                saveState();
+                renderDetailView();
+            }
+        };
+
+        const removeSection = index => {
+            const remix = state.remixes.find(item=>item.id===state.selected.id);
+            if(remix) {
+                remix.sections.splice(index,1);
+                saveState();
+                renderDetailView();
+            }
+        };
+
+        const saveRemix = () => {
+            if(!state.remixes.find(item=>item.id===state.selected.id)) return openModal('Save failed','No remix content available.');
+            saveState();
+            openModal('Remix saved','Your custom choreography has been stored in Saved Routines.');
+            renderSaved();
+        };
+
+        const buildFormationCanvas = (dance, formationSaved) => {
+            const stageCanvas = document.getElementById('stageCanvas');
+            stageCanvas.innerHTML = '';
+            const current = formationSaved ? new Set(formationSaved.positions) : new Set();
+            for(let i=0;i<15;i++) {
+                const cell = document.createElement('button');
+                cell.type='button';
+                cell.className='stage-cell'+(current.has(i)?' active':'');
+                cell.innerHTML=`<span>${i+1}</span>`;
+                cell.addEventListener('click',()=>{
+                    if(current.has(i)) current.delete(i); else current.add(i);
+                    cell.classList.toggle('active');
+                });
+                stageCanvas.appendChild(cell);
+            }
+            stageCanvas.dataset.positions = JSON.stringify([...current]);
+        };
+
+        const saveFormation = () => {
+            const dance = state.selected;
+            const stageCanvas = document.getElementById('stageCanvas');
+            const positions = JSON.parse(stageCanvas.dataset.positions||'[]');
+            if(!positions.length) return openModal('No formation','Please select at least one dancer position before saving.');
+            const existing = state.finals.find(item=>item.id===dance.id);
+            const payload = {id:dance.id,label:dance.formation.label,positions,notes:dance.formation.notes};
+            if(existing) Object.assign(existing,payload); else state.finals.push(payload);
+            saveState();
+            openModal('Final formation saved','This formation is now your official ending formation.');
+            renderDetailView();
+            renderSaved();
+        };
+
+        const checkQuiz = option => {
+            const success = option===state.selected.memory.answer;
+            openModal(success?'Correct!':'Try again', success?'You remembered the routine correctly.':'Review the section order and try the quiz again.');
+        };
+
+        const renderSaved = () => {
+            const savedItems = [];
+            state.remixes.forEach(item=>{const dance=dances.find(d=>d.id===item.id); if(dance) savedItems.push({title:`Remix: ${dance.trend}`,subtitle:`${dance.song} • ${dance.artist}`});});
+            state.finals.forEach(item=>{const dance=dances.find(d=>d.id===item.id); if(dance) savedItems.push({title:`Final formation: ${dance.trend}`,subtitle:item.label});});
+            if(!savedItems.length) savedList.innerHTML='<div class="empty-state">Nothing saved yet. Remix a routine or build a formation to populate this dashboard.</div>';
+            else savedList.innerHTML = savedItems.map(item=>`
+                <div class="saved-row"><div><strong>${item.title}</strong><span style="color:var(--muted);font-size:.9rem;">${item.subtitle}</span></div></div>
+            `).join('');
+        };
+
+        const saveState = () => {
+            localStorage.setItem('trend2stageRemixes',JSON.stringify(state.remixes));
+            localStorage.setItem('trend2stageFinals',JSON.stringify(state.finals));
+        };
+
+        const openModal = (title,message) => {
+            modalTitle.textContent=title;
+            modalMessage.textContent=message;
+            modal.classList.add('active');
+        };
+
+        const closeModalFn = () => modal.classList.remove('active');
+
+        closeModal.addEventListener('click',closeModalFn);
+        closeModalBtn.addEventListener('click',closeModalFn);
+        modal.addEventListener('click',e=>{if(e.target===modal) closeModalFn();});
+
+        clearSaved.addEventListener('click',()=>{
+            state.remixes=[];state.finals=[];saveState();renderSaved();openModal('Cleared','Saved routines and formations have been reset.');
+        });
+
+        modeToggle.addEventListener('click',()=>{
+            document.documentElement.classList.toggle('light-mode');
+            const active = document.documentElement.classList.contains('light-mode');
+            modeToggle.textContent=active?'Dark mode':'Light mode';
+            document.documentElement.style.background=active?'#f7f8ff':'#050713';
+            document.body.style.color=active?'#0f172a':'#f8fbff';
+        });
+
+        const init = () => {
+            renderChips();
+            renderFeed();
+            renderRegionWidget();
+            renderSaved();
+            filterChips.addEventListener('click',e=>{});
+        };
+
+        window.addEventListener('load',init);
+    </script>
+</body>
+</html>
