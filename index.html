@@ -53,9 +53,14 @@
         .trend-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;}
         .trend-name{font-size:1rem;font-weight:700;line-height:1.2;}
         .meta{display:flex;flex-wrap:wrap;gap:.5rem;font-size:.78rem;color:var(--muted);}
-        .preview{height:160px;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,rgba(125,139,255,.24),rgba(255,125,185,.18));position:relative;}
-        .preview::before{content:'';position:absolute;inset:0;background:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"%3E%3Ccircle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2" stroke-dasharray="8 8"/%3E%3C/svg%3E') center/contain no-repeat;}
-        .preview span{position:absolute;left:1rem;bottom:1rem;color:#fff;font-weight:700;font-size:.95rem;text-shadow:0 10px 30px rgba(0,0,0,.45);}
+        .preview{height:160px;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,rgba(125,139,255,.24),rgba(255,125,185,.18));position:relative;background-size:cover;background-position:center;}
+        .preview::before{content:'';position:absolute;inset:0;background:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"%3E%3Ccircle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2" stroke-dasharray="8 8"/%3E%3C/svg%3E') center/contain no-repeat;opacity:.65;}
+        .preview span{position:absolute;left:1rem;bottom:1rem;color:#fff;font-weight:700;font-size:.95rem;text-shadow:0 10px 30px rgba(0,0,0,.45);z-index:2;}
+        .preview video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s ease;pointer-events:none;}
+        .trend-card:hover .preview video{opacity:1;}
+        .detail-media{display:grid;gap:1rem;padding:1rem;border-radius:24px;border:1px solid var(--border);background:rgba(255,255,255,.02);}
+        .detail-media img{width:100%;border-radius:20px;object-fit:cover;height:240px;}
+        .detail-media audio{width:100%;border-radius:14px;}
         .section-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;}
         .tab-btn{border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);padding:.85rem 1rem;border-radius:16px;cursor:pointer;text-align:center;white-space:nowrap;}
         .tab-btn.active{background:rgba(125,139,255,.16);border-color:rgba(125,139,255,.38);color:var(--accent);}
@@ -87,6 +92,22 @@
         .metric strong{font-size:1.2rem;}
         .memory-grid{display:grid;gap:.85rem;}
         .memory-card{padding:1rem;border-radius:22px;border:1px solid var(--border);background:rgba(255,255,255,.02);}
+        .timeline-card{padding:1rem;border-radius:20px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);display:grid;gap:.85rem;}
+        .timeline-step{display:grid;gap:.5rem;padding:1rem;border-radius:18px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);}
+        .timeline-step strong{display:flex;justify-content:space-between;gap:1rem;align-items:center;color:var(--accent);}
+        .timeline-controls{display:flex;gap:.5rem;flex-wrap:wrap;}
+        .creative-panel{display:grid;gap:1rem;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:24px;padding:1rem;}
+        .creative-card{display:grid;gap:.85rem;padding:1rem;border-radius:22px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);}
+        .creative-card h4{margin:0;color:var(--accent);}
+        .creative-form{display:grid;gap:.85rem;}
+        .creative-form input,.creative-form select,.creative-form textarea{width:100%;border:1px solid rgba(255,255,255,.12);border-radius:16px;background:rgba(255,255,255,.04);color:var(--text);padding:.85rem;}
+        .creative-actions{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;}
+        .video-card{display:grid;gap:.75rem;padding:1rem;border-radius:22px;border:1px solid rgba(255,255,255,.08);background:rgba(125,139,255,.06);}
+        .video-card video{width:100%;border-radius:18px;background:#000;}
+        .video-card .video-meta{display:flex;justify-content:space-between;align-items:center;gap:.75rem;font-size:.85rem;color:var(--muted);}
+        .video-card .video-meta strong{color:var(--text);}
+        .video-upload{display:grid;gap:.75rem;}
+        .muted{color:var(--muted);font-size:.95rem;}
         .progress-ring{display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);font-weight:700;color:var(--accent);}
         .formation-canvas{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;padding:1rem;background:rgba(255,255,255,.03);border-radius:24px;border:1px solid var(--border);}
         .stage-cell{aspect-ratio:1/1;border-radius:16px;border:1px dashed rgba(255,255,255,.12);display:grid;place-items:center;cursor:pointer;position:relative;background:rgba(255,255,255,.01);}
@@ -153,7 +174,10 @@
                     <h2 id="detailTitle">Trend name</h2>
                     <p id="detailSubtitle">Song • Artist • Region</p>
                 </div>
-                <div class="badge positive" id="remixBadge">Most remixed</div>
+                <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+                    <button class="btn secondary small" id="exportBtn">Export</button>
+                    <div class="badge positive" id="remixBadge">Most remixed</div>
+                </div>
             </header>
             <div class="card-body">
                 <div class="info-grid">
@@ -162,6 +186,18 @@
                     <div class="info-pill" id="infoDifficulty">Difficulty</div>
                     <div class="info-pill" id="infoTrend">Trending category</div>
                 </div>
+                <div class="section-panel">
+                    <div class="panel-header">
+                        <h3>Creative Lab</h3>
+                        <div class="creative-actions">
+                            <button class="btn secondary small" id="recordClipBtn">Record clip</button>
+                            <button class="btn secondary small" id="uploadClipBtn">Upload clip</button>
+                        </div>
+                    </div>
+                    <p class="muted">Save your own choreography notes, attach a rehearsal clip, and update or delete clips as you refine the routine.</p>
+                    <div class="creative-panel" id="creativePanel"></div>
+                </div>
+                <div class="detail-media" id="detailMedia"></div>
                 <div class="split">
                     <div>
                         <div class="section-panel">
@@ -182,7 +218,7 @@
                 <div class="section-panel" id="tabContent"></div>
             </div>
         </section>
-
+        <input type="file" accept="video/*" id="videoFileInput" style="display:none;">
         <section class="card" id="savedPanel" style="display:none;">
             <header>
                 <div>
@@ -202,6 +238,7 @@
             <button class="close" id="closeModal">×</button>
             <h3 id="modalTitle">Saved</h3>
             <p id="modalMessage">Your choreography has been stored.</p>
+            <div id="modalActions"></div>
             <div style="margin-top:1rem;text-align:right;"><button class="btn primary" id="closeModalBtn">Got it</button></div>
         </div>
     </div>
@@ -235,8 +272,14 @@
         const sectionCount = document.getElementById('sectionCount');
         const overviewHint = document.getElementById('overviewHint');
         const remixBadge = document.getElementById('remixBadge');
+        const detailMedia = document.getElementById('detailMedia');
+        const creativePanel = document.getElementById('creativePanel');
+        const recordClipBtn = document.getElementById('recordClipBtn');
+        const uploadClipBtn = document.getElementById('uploadClipBtn');
+        const videoFileInput = document.getElementById('videoFileInput');
+        const exportBtn = document.getElementById('exportBtn');
 
-        const tabs = ['Original Steps','My Remix','Practice','Memory Mode','Formation'];
+        const tabs = ['Original Steps','My Remix','Practice','Memory Mode','Stage Timeline','Formation'];
 
         const dances = [
             {
@@ -248,6 +291,9 @@
                 style:'Artistic Wave',
                 difficulty:'Intermediate',
                 category:'Visual Trend',
+                image:'https://images.unsplash.com/photo-1514996937319-344454492b37?auto=format&fit=crop&w=1000&q=80',
+                preview:'https://cdn.coverr.co/videos/coverr-people-dancing-near-lights-7065/1080p.mp4',
+                audio:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
                 why:'A hybrid of futuristic footwork and expressive hand tracing created for cinematic reel edits.',
                 overview:'This dance splits into five sections with sharp beats and fluid transitions, designed for studio crews who want a stage-ready sparkle.',
                 sections:[
@@ -270,6 +316,9 @@
                 style:'Afrobeats Groove',
                 difficulty:'Beginner',
                 category:'Rhythm Wave',
+                image:'https://images.unsplash.com/photo-1516139007880-0f9153fa3f02?auto=format&fit=crop&w=1000&q=80',
+                preview:'https://cdn.coverr.co/videos/coverr-confident-dancers-7169/1080p.mp4',
+                audio:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
                 why:'A joyful groove built on grounded footwork and celebratory hip motion popular for collaborative duets.',
                 overview:'The routine uses repetitive looped sections that make it easy to learn while still delivering a polished rehearsal-ready choreography.',
                 sections:[
@@ -291,6 +340,9 @@
                 style:'Salsa Pop',
                 difficulty:'Advanced',
                 category:'Stage Anthem',
+                image:'https://images.unsplash.com/photo-1522782565334-717ee3dbe0c0?auto=format&fit=crop&w=1000&q=80',
+                preview:'https://cdn.coverr.co/videos/coverr-latin-dance-on-stage-6350/1080p.mp4',
+                audio:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
                 why:'A celebration-friendly routine with sharp salsa accents and theatrical finale moments.',
                 overview:'Designed for performers who want a warm crowd response, this routine layers original salsa moves with modern reel-ready poses.',
                 sections:[
@@ -312,6 +364,9 @@
                 style:'Street Circuit',
                 difficulty:'Hard',
                 category:'Battle Ready',
+                image:'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=1000&q=80',
+                preview:'https://cdn.coverr.co/videos/coverr-dance-party-in-studio-6855/1080p.mp4',
+                audio:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
                 why:'A raw street-inspired routine made for performance battles and rehearsal runs.',
                 overview:'The choreography layers syncopated footwork with strong freestyle fragments to make a memorable routine.',
                 sections:[
@@ -333,7 +388,14 @@
             remixDraft:{},
             formations:JSON.parse(localStorage.getItem('trend2stageFormations')||'[]'),
             remixes:JSON.parse(localStorage.getItem('trend2stageRemixes')||'[]'),
-            finals:JSON.parse(localStorage.getItem('trend2stageFinals')||'[]')
+            finals:JSON.parse(localStorage.getItem('trend2stageFinals')||'[]'),
+            userSteps:JSON.parse(localStorage.getItem('trend2stageUserSteps')||'[]'),
+            userVideos:JSON.parse(localStorage.getItem('trend2stageUserVideos')||'[]'),
+            timelineLayouts:JSON.parse(localStorage.getItem('trend2stageTimelineLayouts')||'{}'),
+            pendingClip:null,
+            recording:false,
+            recordingChunks:[],
+            editingStepId:null
         };
 
         const categories = ['All','K-pop inspired','West Africa','Latin Pop','US Hip-Hop'];
@@ -374,7 +436,10 @@
                     <div class="meta">
                         <span>${d.region}</span><span>${d.style}</span><span>${d.category}</span>
                     </div>
-                    <div class="preview"><span>${d.trend}</span></div>
+                    <div class="preview" style="background-image:url(${d.image});">
+                        <video muted loop playsinline preload="metadata" src="${d.preview}"></video>
+                        <span>Preview</span>
+                    </div>
                 </article>`).join('');
             if(!items.length) feedEl.innerHTML='<div class="empty-state">No routines match these filters. Reset or try another region.</div>';
             document.querySelectorAll('.trend-card').forEach(card=>card.addEventListener('click',()=>openDetail(card.dataset.id)));
@@ -404,15 +469,42 @@
             infoTrend.textContent=dance.category;
             sectionCount.textContent=`${dance.sections.length} sections`;
             remixBadge.textContent = dance.category==='Visual Trend' ? 'Most remixed' : 'Studio pick';
+            renderDetailMedia();
             renderDetailTabs();
             renderSaved();
             window.scrollTo({top:0,behavior:'smooth'});
+        };
+
+        const renderDetailMedia = () => {
+            if(!state.selected) return;
+            const clips = state.userVideos.filter(clip=>clip.danceId===state.selected.id);
+            detailMedia.innerHTML = `
+                <img src="${state.selected.image}" alt="${state.selected.trend} preview">
+                <audio controls src="${state.selected.audio}"></audio>
+                <div style="display:flex;flex-wrap:wrap;gap:.75rem;"><span class="tag">Video walkthrough</span><span class="tag">Music sample</span><span class="tag">Creative score</span>${clips.length? `<span class="tag">${clips.length} personal clip${clips.length>1?'s':''}</span>`:''}</div>
+            `;
+        };
+
+        const openShareModal = () => {
+            modalTitle.textContent = 'Export & Share';
+            modalMessage.innerHTML = `Share your routine mockup with collaborators, export a rehearsal brief, or copy the creative link.`;
+            const modalActions = document.getElementById('modalActions');
+            modalActions.innerHTML = `
+                <div style="display:grid;gap:.75rem;margin-top:1rem;">
+                    <button class="btn primary" id="copyLinkBtn">Copy rehearsal link</button>
+                    <button class="btn secondary" id="downloadBtn">Download choreography brief</button>
+                </div>
+            `;
+            document.getElementById('copyLinkBtn').addEventListener('click',()=>{navigator.clipboard.writeText(window.location.href);openModal('Link copied','A rehearsal share link is ready to paste.');});
+            document.getElementById('downloadBtn').addEventListener('click',()=>{openModal('Download ready','A choreography brief mockup is now prepared for export.');});
+            modal.classList.add('active');
         };
 
         const renderDetailTabs = () => {
             detailTabs.innerHTML = tabs.map(tab=>`<button class="tab-btn${state.activeTab===tab?' active':''}" data-tab="${tab}">${tab}</button>`).join('');
             detailTabs.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',e=>{state.activeTab=e.target.dataset.tab; renderDetailView(); renderDetailTabs();}));
             renderDetailView();
+            renderCreativeLab();
         };
 
         const renderDetailView = () => {
@@ -458,6 +550,7 @@
                 tabContent.innerHTML = `
                     <div class="practice-card">
                         <div class="media-card"><span class="play">▶</span></div>
+                        <audio controls src="${dance.audio}"></audio>
                         <div class="controls">
                             <button class="btn secondary">Play</button>
                             <button class="btn secondary">Pause</button>
@@ -482,6 +575,11 @@
                     </div>
                 `;
                 tabContent.querySelectorAll('[data-quiz]').forEach(btn=>btn.addEventListener('click',e=>checkQuiz(e.target.dataset.quiz)));
+            }
+            if(state.activeTab==='Stage Timeline') {
+                tabContent.innerHTML = renderStageTimeline(dance);
+                tabContent.querySelectorAll('[data-action="move-timeline"]').forEach(btn=>btn.addEventListener('click',e=>moveTimelineStep(dance, Number(e.target.dataset.index), Number(e.target.dataset.dir))));
+                document.getElementById('resetTimeline').addEventListener('click',()=>resetTimelineOrder(dance));
             }
             if(state.activeTab==='Formation') {
                 tabContent.innerHTML = `
@@ -593,6 +691,9 @@
             const savedItems = [];
             state.remixes.forEach(item=>{const dance=dances.find(d=>d.id===item.id); if(dance) savedItems.push({title:`Remix: ${dance.trend}`,subtitle:`${dance.song} • ${dance.artist}`});});
             state.finals.forEach(item=>{const dance=dances.find(d=>d.id===item.id); if(dance) savedItems.push({title:`Final formation: ${dance.trend}`,subtitle:item.label});});
+            state.userSteps.forEach(item=>{const dance=dances.find(d=>d.id===item.danceId); if(dance) savedItems.push({title:`Custom step: ${item.title}`,subtitle:`${dance.trend}`});});
+            state.userVideos.forEach(item=>{const dance=dances.find(d=>d.id===item.danceId); if(dance) savedItems.push({title:`Clip: ${item.name}`,subtitle:`${dance.trend}`});});
+            Object.keys(state.timelineLayouts).forEach(danceId=>{ const dance=dances.find(d=>d.id===danceId); if(dance && state.timelineLayouts[danceId].length) savedItems.push({title:`Stage timeline: ${dance.trend}`,subtitle:'Rehearsal sequence'}); });
             if(!savedItems.length) savedList.innerHTML='<div class="empty-state">Nothing saved yet. Remix a routine or build a formation to populate this dashboard.</div>';
             else savedList.innerHTML = savedItems.map(item=>`
                 <div class="saved-row"><div><strong>${item.title}</strong><span style="color:var(--muted);font-size:.9rem;">${item.subtitle}</span></div></div>
@@ -602,12 +703,337 @@
         const saveState = () => {
             localStorage.setItem('trend2stageRemixes',JSON.stringify(state.remixes));
             localStorage.setItem('trend2stageFinals',JSON.stringify(state.finals));
+            localStorage.setItem('trend2stageUserSteps',JSON.stringify(state.userSteps));
+            localStorage.setItem('trend2stageUserVideos',JSON.stringify(state.userVideos));
+            localStorage.setItem('trend2stageTimelineLayouts',JSON.stringify(state.timelineLayouts));
         };
 
         const openModal = (title,message) => {
-            modalTitle.textContent=title;
-            modalMessage.textContent=message;
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            document.getElementById('modalActions').innerHTML = '';
             modal.classList.add('active');
+        };
+
+        const getTimelineItems = dance => {
+            const original = dance.sections.map((section,i)=>({
+                ...section,
+                id:`orig-${i}`,
+                source:'Original'
+            }));
+            const custom = state.userSteps.filter(step=>step.danceId===dance.id).map(step=>({
+                ...step,
+                source:'Custom'
+            }));
+            return [...original,...custom];
+        };
+
+        const getTimelineLayout = dance => {
+            const items = getTimelineItems(dance);
+            const existing = state.timelineLayouts[dance.id] || items.map(item=>item.id);
+            const itemIds = items.map(item=>item.id);
+            const merged = [
+                ...existing.filter(id=>itemIds.includes(id)),
+                ...itemIds.filter(id=>!existing.includes(id))
+            ];
+            state.timelineLayouts[dance.id] = merged;
+            return merged;
+        };
+
+        const saveTimelineLayout = (dance, layout) => {
+            state.timelineLayouts[dance.id] = layout;
+            saveState();
+            renderSaved();
+        };
+
+        const moveTimelineStep = (dance, index, direction) => {
+            const layout = [...getTimelineLayout(dance)];
+            const target = index + direction;
+            if(target < 0 || target >= layout.length) return;
+            [layout[index], layout[target]] = [layout[target], layout[index]];
+            saveTimelineLayout(dance, layout);
+            renderDetailView();
+        };
+
+        const resetTimelineOrder = dance => {
+            const layout = getTimelineItems(dance).map(item=>item.id);
+            saveTimelineLayout(dance, layout);
+            renderDetailView();
+            openModal('Timeline reset','Your stage sequence has been restored to the default order.');
+        };
+
+        const renderStageTimeline = dance => {
+            const items = getTimelineItems(dance);
+            const layout = getTimelineLayout(dance);
+            const mapped = layout.map(id => items.find(item=>item.id===id)).filter(Boolean);
+            return `
+                <div class="timeline-card">
+                    <h4>Stage Timeline</h4>
+                    ${mapped.length ? mapped.map((item,index)=>`
+                        <div class="timeline-step">
+                            <strong><span>${index+1}. ${item.title}</span><span>${item.source}</span></strong>
+                            <div class="step-meta"><span>${item.counts||'8'}</span><span>${item.timing||'—'}</span><span>${item.difficulty||'Custom'}</span></div>
+                            <p class="step-notes">${item.notes||'No description yet.'}</p>
+                            <div class="timeline-controls">
+                                <button class="btn secondary small" data-action="move-timeline" data-index="${index}" data-dir="-1">Move earlier</button>
+                                <button class="btn secondary small" data-action="move-timeline" data-index="${index}" data-dir="1">Move later</button>
+                            </div>
+                        </div>
+                    `).join('') : '<p class="muted">Add custom steps to build a stage sequence.</p>'}
+                    <div class="timeline-controls" style="margin-top:1rem;">
+                        <button class="btn primary small" id="resetTimeline">Reset order</button>
+                    </div>
+                </div>
+            `;
+        };
+
+        const saveVideoData = clip => {
+            state.userVideos.push(clip);
+            saveState();
+            renderCreativeLab();
+            renderSaved();
+        };
+
+        const createClipFromFile = (file) => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const clip = {
+                    id:Date.now().toString(),
+                    danceId:state.selected.id,
+                    name:file.name || `Rehearsal clip ${new Date().toLocaleDateString()}`,
+                    url:e.target.result,
+                    savedAt:new Date().toISOString()
+                };
+                saveVideoData(clip);
+                openModal('Clip saved','Your rehearsal clip has been added to the Creative Lab.');
+            };
+            reader.readAsDataURL(file);
+        };
+
+        const startCameraRecord = async () => {
+            if(state.recording) return stopCameraRecord();
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+                state.stream = stream;
+                state.mediaRecorder = new MediaRecorder(stream);
+                state.recordingChunks = [];
+                state.mediaRecorder.ondataavailable = e => state.recordingChunks.push(e.data);
+                state.mediaRecorder.onstop = () => {
+                    const blob = new Blob(state.recordingChunks, {type:'video/webm'});
+                    state.pendingClip = {
+                        id:Date.now().toString(),
+                        danceId:state.selected.id,
+                        name:`Recorded clip ${new Date().toLocaleTimeString()}`,
+                        url:URL.createObjectURL(blob),
+                        blob,
+                        saved:false,
+                        savedAt:new Date().toISOString()
+                    };
+                    state.recording=false;
+                    recordClipBtn.textContent='Record clip';
+                    renderCreativeLab();
+                };
+                state.mediaRecorder.start();
+                state.recording=true;
+                recordClipBtn.textContent='Stop recording';
+                openModal('Recording started','Move into position and capture your choreography. Click stop when ready.');
+            } catch (err) {
+                openModal('Camera blocked','Allow camera access or use upload to add a rehearsal clip.');
+            }
+        };
+
+        const stopCameraRecord = () => {
+            if(state.mediaRecorder && state.recording) state.mediaRecorder.stop();
+            if(state.stream) {
+                state.stream.getTracks().forEach(track=>track.stop());
+                state.stream=null;
+            }
+        };
+
+        const blobToDataUrl = (blob, callback) => {
+            const reader = new FileReader();
+            reader.onload = e => callback(e.target.result);
+            reader.readAsDataURL(blob);
+        };
+
+        const savePendingClip = () => {
+            if(!state.pendingClip) return;
+            const clipPayload = {...state.pendingClip};
+            const finalize = (url) => {
+                const clip = {...clipPayload, url, saved:true};
+                delete clip.blob;
+                state.userVideos.push(clip);
+                state.pendingClip = null;
+                saveState();
+                renderCreativeLab();
+                renderSaved();
+                openModal('Clip saved','Your new rehearsal clip is ready in the Creative Lab.');
+            };
+            if(clipPayload.blob) {
+                blobToDataUrl(clipPayload.blob, url => {
+                    URL.revokeObjectURL(clipPayload.url);
+                    finalize(url);
+                });
+            } else {
+                finalize(clipPayload.url);
+            }
+        };
+
+        const discardPendingClip = () => {
+            if(state.pendingClip && state.pendingClip.url) URL.revokeObjectURL(state.pendingClip.url);
+            state.pendingClip = null;
+            renderCreativeLab();
+        };
+
+        const deleteClip = id => {
+            state.userVideos = state.userVideos.filter(clip=>clip.id!==id);
+            state.userSteps = state.userSteps.map(step=>step.clipId===id? {...step, clipId:null}:step);
+            saveState();
+            renderCreativeLab();
+            renderSaved();
+        };
+
+        const renderCreativeLab = () => {
+            if(!state.selected) return;
+            const dance = state.selected;
+            const steps = state.userSteps.filter(step=>step.danceId===dance.id);
+            const clips = state.userVideos.filter(clip=>clip.danceId===dance.id);
+            creativePanel.innerHTML = `
+                <div class="creative-card">
+                    <h4>Build a custom step</h4>
+                    <div class="creative-form">
+                        <input type="text" id="customTitle" placeholder="Step title">
+                        <input type="text" id="customCounts" placeholder="Counts (example: 8)">
+                        <input type="text" id="customTiming" placeholder="Timing (example: 0:36-0:44)">
+                        <select id="customDifficulty">
+                            <option value="Custom">Custom difficulty</option>
+                            <option>Beginner</option>
+                            <option>Intermediate</option>
+                            <option>Advanced</option>
+                            <option>Hard</option>
+                        </select>
+                        <textarea id="customNotes" rows="3" placeholder="Describe your choreography step."></textarea>
+                        <select id="customClipSelect">
+                            <option value="">Attach a rehearsal clip</option>
+                            ${clips.map(clip=>`<option value="${clip.id}">${clip.name}</option>`).join('')}
+                        </select>
+                        <div class="creative-actions">
+                            <button class="btn primary small" id="saveCustomStep">Save step</button>
+                            <button class="btn secondary small" id="resetCustomStep">Reset</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="creative-card">
+                    <h4>Your saved choreography</h4>
+                    ${steps.length ? steps.map(step => `
+                        <div class="step-card">
+                            <strong>${step.title} <span class="tag">${step.clipId?'clip linked':'custom'}</span></strong>
+                            <div class="step-meta"><span>${step.counts}</span><span>${step.timing}</span><span>${step.difficulty}</span></div>
+                            <p class="step-notes">${step.notes}</p>
+                            ${step.clipId ? `<video controls src="${(clips.find(c=>c.id===step.clipId)||{}).url||''}"></video>` : ''}
+                            <div style="display:flex;gap:.65rem;flex-wrap:wrap;">
+                                <button class="btn secondary small" data-action="edit-step" data-id="${step.id}">Edit</button>
+                                <button class="btn secondary small" data-action="delete-step" data-id="${step.id}">Delete</button>
+                            </div>
+                        </div>
+                    `).join('') : '<p class="muted">No custom steps yet. Add one and attach a rehearsal clip when you are ready.</p>'}
+                </div>
+                <div class="creative-card">
+                    <h4>Studio clips</h4>
+                    ${state.pendingClip && state.pendingClip.danceId===dance.id ? `
+                        <div class="video-card">
+                            <div class="video-meta"><strong>${state.pendingClip.name}</strong><span>Pending</span></div>
+                            <video controls src="${state.pendingClip.url}"></video>
+                            <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+                                <button class="btn primary small" id="savePendingClip">Save clip</button>
+                                <button class="btn secondary small" id="discardPendingClip">Discard</button>
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${clips.length ? clips.map(clip => `
+                        <div class="video-card">
+                            <div class="video-meta"><strong>${clip.name}</strong><span>${new Date(clip.savedAt).toLocaleDateString()}</span></div>
+                            <video controls src="${clip.url}"></video>
+                            <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+                                <button class="btn secondary small" data-action="delete-clip" data-id="${clip.id}">Delete clip</button>
+                            </div>
+                        </div>
+                    `).join('') : '<p class="muted">No rehearsal clips yet. Record one, upload one, and save it here.</p>'}
+                </div>
+            `;
+            document.getElementById('saveCustomStep').addEventListener('click',saveCustomStep);
+            document.getElementById('resetCustomStep').addEventListener('click',resetCustomStepForm);
+            if(document.getElementById('savePendingClip')) document.getElementById('savePendingClip').addEventListener('click',savePendingClip);
+            if(document.getElementById('discardPendingClip')) document.getElementById('discardPendingClip').addEventListener('click',discardPendingClip);
+            detailPanel.querySelectorAll('[data-action="delete-step"]').forEach(btn=>btn.addEventListener('click',e=>deleteCustomStep(e.target.dataset.id)));
+            detailPanel.querySelectorAll('[data-action="edit-step"]').forEach(btn=>btn.addEventListener('click',e=>editCustomStep(e.target.dataset.id)));
+            detailPanel.querySelectorAll('[data-action="delete-clip"]').forEach(btn=>btn.addEventListener('click',e=>deleteClip(e.target.dataset.id)));
+        };
+
+        const resetCustomStepForm = () => {
+            document.getElementById('customTitle').value='';
+            document.getElementById('customCounts').value='';
+            document.getElementById('customTiming').value='';
+            document.getElementById('customDifficulty').value='Custom';
+            document.getElementById('customNotes').value='';
+            document.getElementById('customClipSelect').value='';
+            state.editingStepId=null;
+        };
+
+        const saveCustomStep = () => {
+            const title = document.getElementById('customTitle').value.trim();
+            const counts = document.getElementById('customCounts').value.trim();
+            const timing = document.getElementById('customTiming').value.trim();
+            const difficulty = document.getElementById('customDifficulty').value;
+            const notes = document.getElementById('customNotes').value.trim();
+            const clipId = document.getElementById('customClipSelect').value || null;
+            if(!title || !notes) return openModal('Missing details','Add a title and notes for your custom step.');
+            if(state.editingStepId) {
+                const step = state.userSteps.find(item=>item.id===state.editingStepId);
+                if(step) {
+                    Object.assign(step,{title,counts,timing,difficulty,notes,clipId});
+                    openModal('Step updated','Your choreography step has been refreshed.');
+                }
+                state.editingStepId=null;
+            } else {
+                state.userSteps.push({id:Date.now().toString(),danceId:state.selected.id,title,counts,timing,difficulty,notes,clipId});
+                openModal('Step saved','A new custom choreography step has been added.');
+            }
+            saveState();
+            renderCreativeLab();
+            renderSaved();
+        };
+
+        const deleteCustomStep = id => {
+            state.userSteps = state.userSteps.filter(step=>step.id!==id);
+            saveState();
+            renderCreativeLab();
+            renderSaved();
+        };
+
+        const editCustomStep = id => {
+            const step = state.userSteps.find(item=>item.id===id);
+            if(!step) return;
+            state.editingStepId = id;
+            document.getElementById('customTitle').value = step.title;
+            document.getElementById('customCounts').value = step.counts;
+            document.getElementById('customTiming').value = step.timing;
+            document.getElementById('customDifficulty').value = step.difficulty;
+            document.getElementById('customNotes').value = step.notes;
+            document.getElementById('customClipSelect').value = step.clipId || '';
+        };
+
+        const handleVideoFile = event => {
+            const file = event.target.files && event.target.files[0];
+            if(!file) return;
+            createClipFromFile(file);
+            videoFileInput.value='';
+        };
+
+        const triggerUploadClip = () => videoFileInput.click();
+
+        const triggerRecordClip = () => {
+            if(state.recording) stopCameraRecord(); else startCameraRecord();
         };
 
         const closeModalFn = () => modal.classList.remove('active');
@@ -617,8 +1043,13 @@
         modal.addEventListener('click',e=>{if(e.target===modal) closeModalFn();});
 
         clearSaved.addEventListener('click',()=>{
-            state.remixes=[];state.finals=[];saveState();renderSaved();openModal('Cleared','Saved routines and formations have been reset.');
+            state.remixes=[];state.finals=[];state.userSteps=[];state.userVideos=[];saveState();renderSaved();renderCreativeLab();openModal('Cleared','Saved routines, custom steps, and clips have been reset.');
         });
+
+        if(exportBtn) exportBtn.addEventListener('click',openShareModal);
+        recordClipBtn.addEventListener('click',triggerRecordClip);
+        uploadClipBtn.addEventListener('click',triggerUploadClip);
+        videoFileInput.addEventListener('change',handleVideoFile);
 
         modeToggle.addEventListener('click',()=>{
             document.documentElement.classList.toggle('light-mode');
