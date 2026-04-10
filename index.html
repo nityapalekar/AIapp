@@ -7,22 +7,22 @@
     <meta name="description" content="Trend2Stage is a premium choreography studio for viral dance routines, remix creation, practice drills, memory training and stage formation building.">
     <style>
         :root {
-            color-scheme: dark;
-            --bg: #090b14;
-            --surface: rgba(22, 28, 46, 0.95);
-            --surface-strong: rgba(9, 11, 20, 0.98);
-            --border: rgba(255,255,255,0.08);
-            --text: #f8fbff;
-            --muted: #a0aac4;
-            --accent: #7d8bff;
-            --accent-soft: #5bb0ff;
-            --accent-alt: #ff7db9;
-            --success: #4ade80;
-            --danger: #fb7185;
-            --shadow: 0 24px 80px rgba(0,0,0,.2);
-            font-family: Inter, system-ui, sans-serif;
+            color-scheme: light;
+            --bg: linear-gradient(135deg, #fef7f0 0%, #fdf2e9 100%);
+            --surface: rgba(255, 255, 255, 0.9);
+            --surface-strong: rgba(255, 255, 255, 0.95);
+            --border: rgba(0,0,0,0.08);
+            --text: #2d3748;
+            --muted: #718096;
+            --accent: #e53e3e;
+            --accent-soft: #fc8181;
+            --accent-alt: #38b2ac;
+            --success: #48bb78;
+            --danger: #f56565;
+            --shadow: 0 10px 25px rgba(0,0,0,.1);
+            font-family: 'Inter', system-ui, sans-serif;
         }
-        body{margin:0;background:#050713;color:var(--text);min-height:100vh;}
+        body{margin:0;background:var(--bg);color:var(--text);min-height:100vh;}
         *,*::before,*::after{box-sizing:border-box;}
         button,select{font:inherit;}
         img{max-width:100%;display:block;}
@@ -141,6 +141,11 @@
                 <h1>Turn viral dances into crafted stage routines.</h1>
                 <p>Discover trending TikTok and Reel choreography, learn original sections, remix your own version, remember the routine, and lock your final stage formation.</p>
                 <div class="chip-bar" id="heroChips"></div>
+                <div class="hero-images">
+                    <div class="hero-image"><img src="https://images.unsplash.com/photo-1514996937319-344454492b37?auto=format&fit=crop&w=400&q=80" alt="Dance 1"><span>Trending Moves</span></div>
+                    <div class="hero-image"><img src="https://images.unsplash.com/photo-1516139007880-0f9153fa3f02?auto=format&fit=crop&w=400&q=80" alt="Dance 2"><span>Global Vibes</span></div>
+                    <div class="hero-image"><img src="https://images.unsplash.com/photo-1522782565334-717ee3dbe0c0?auto=format&fit=crop&w=400&q=80" alt="Dance 3"><span>Stage Ready</span></div>
+                </div>
             </div>
             <div class="card">
                 <header>
@@ -243,6 +248,24 @@
         </div>
     </div>
 
+    <div class="overlay" id="recordOverlay">
+        <div class="modal" style="width:min(800px,100%);">
+            <button class="close" id="closeRecordModal">×</button>
+            <h3>Record Your Dance</h3>
+            <p>Start recording to capture your choreography. Preview, trim, and save your clip.</p>
+            <div style="display:grid;gap:1rem;">
+                <video id="recordVideo" autoplay muted style="width:100%;border-radius:18px;background:#000;"></video>
+                <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+                    <button class="btn primary" id="startRecordBtn">Start Recording</button>
+                    <button class="btn secondary" id="stopRecordBtn" disabled>Stop Recording</button>
+                    <button class="btn secondary" id="previewRecordBtn" disabled>Preview</button>
+                    <button class="btn primary" id="saveRecordBtn" disabled>Save Clip</button>
+                </div>
+                <div id="recordStatus" style="color:var(--muted);font-size:.9rem;">Ready to record</div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const app = document.getElementById('app');
         const feedEl = document.getElementById('feed');
@@ -278,6 +301,14 @@
         const uploadClipBtn = document.getElementById('uploadClipBtn');
         const videoFileInput = document.getElementById('videoFileInput');
         const exportBtn = document.getElementById('exportBtn');
+        const recordOverlay = document.getElementById('recordOverlay');
+        const recordVideo = document.getElementById('recordVideo');
+        const startRecordBtn = document.getElementById('startRecordBtn');
+        const stopRecordBtn = document.getElementById('stopRecordBtn');
+        const previewRecordBtn = document.getElementById('previewRecordBtn');
+        const saveRecordBtn = document.getElementById('saveRecordBtn');
+        const recordStatus = document.getElementById('recordStatus');
+        const closeRecordModal = document.getElementById('closeRecordModal');
 
         const tabs = ['Original Steps','My Remix','Practice','Memory Mode','Stage Timeline','Formation'];
 
@@ -395,7 +426,10 @@
             pendingClip:null,
             recording:false,
             recordingChunks:[],
-            editingStepId:null
+            editingStepId:null,
+            recordStream:null,
+            recordMediaRecorder:null,
+            recordedBlob:null
         };
 
         const categories = ['All','K-pop inspired','West Africa','Latin Pop','US Hip-Hop'];
@@ -1033,7 +1067,89 @@
         const triggerUploadClip = () => videoFileInput.click();
 
         const triggerRecordClip = () => {
-            if(state.recording) stopCameraRecord(); else startCameraRecord();
+            recordOverlay.classList.add('active');
+            startCameraForRecord();
+        };
+
+        const startCameraForRecord = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+                recordVideo.srcObject = stream;
+                state.recordStream = stream;
+                recordStatus.textContent = 'Camera ready. Click Start Recording.';
+                startRecordBtn.disabled = false;
+            } catch (err) {
+                recordStatus.textContent = 'Camera access denied. Try upload instead.';
+            }
+        };
+
+        const startRecording = () => {
+            if(!state.recordStream) return;
+            state.recordMediaRecorder = new MediaRecorder(state.recordStream);
+            state.recordingChunks = [];
+            state.recordMediaRecorder.ondataavailable = e => state.recordingChunks.push(e.data);
+            state.recordMediaRecorder.onstop = () => {
+                state.recordedBlob = new Blob(state.recordingChunks, {type:'video/webm'});
+                recordVideo.srcObject = null;
+                recordVideo.src = URL.createObjectURL(state.recordedBlob);
+                recordStatus.textContent = 'Recording complete. Preview or save.';
+                previewRecordBtn.disabled = false;
+                saveRecordBtn.disabled = false;
+            };
+            state.recordMediaRecorder.start();
+            recordStatus.textContent = 'Recording... Click Stop when done.';
+            startRecordBtn.disabled = true;
+            stopRecordBtn.disabled = false;
+        };
+
+        const stopRecording = () => {
+            if(state.recordMediaRecorder) state.recordMediaRecorder.stop();
+            stopRecordBtn.disabled = true;
+        };
+
+        const previewRecording = () => {
+            if(state.recordedBlob) {
+                recordVideo.src = URL.createObjectURL(state.recordedBlob);
+                recordVideo.play();
+            }
+        };
+
+        const saveRecording = () => {
+            if(!state.recordedBlob) return;
+            const clip = {
+                id:Date.now().toString(),
+                danceId:state.selected.id,
+                name:`Full recording ${new Date().toLocaleTimeString()}`,
+                url:URL.createObjectURL(state.recordedBlob),
+                savedAt:new Date().toISOString()
+            };
+            state.userVideos.push(clip);
+            saveState();
+            renderCreativeLab();
+            renderSaved();
+            recordOverlay.classList.remove('active');
+            openModal('Recording saved','Your full dance recording is now in the Creative Lab.');
+            resetRecording();
+        };
+
+        const resetRecording = () => {
+            if(state.recordStream) {
+                state.recordStream.getTracks().forEach(track=>track.stop());
+                state.recordStream = null;
+            }
+            recordVideo.srcObject = null;
+            recordVideo.src = '';
+            state.recordedBlob = null;
+            startRecordBtn.disabled = true;
+            stopRecordBtn.disabled = true;
+            previewRecordBtn.disabled = true;
+            saveRecordBtn.disabled = true;
+            recordStatus.textContent = 'Ready to record';
+        };
+
+        const closeRecordModalFn = () => {
+            recordOverlay.classList.remove('active');
+            resetRecording();
         };
 
         const closeModalFn = () => modal.classList.remove('active');
@@ -1050,6 +1166,12 @@
         recordClipBtn.addEventListener('click',triggerRecordClip);
         uploadClipBtn.addEventListener('click',triggerUploadClip);
         videoFileInput.addEventListener('change',handleVideoFile);
+
+        startRecordBtn.addEventListener('click',startRecording);
+        stopRecordBtn.addEventListener('click',stopRecording);
+        previewRecordBtn.addEventListener('click',previewRecording);
+        saveRecordBtn.addEventListener('click',saveRecording);
+        closeRecordModal.addEventListener('click',closeRecordModalFn);
 
         modeToggle.addEventListener('click',()=>{
             document.documentElement.classList.toggle('light-mode');
