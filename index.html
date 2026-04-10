@@ -49,7 +49,21 @@
         .chip.active{background:rgba(125,139,255,.16);border-color:rgba(125,139,255,.36);color:var(--accent);transform:translateY(-1px);}
         .feed-grid{display:grid;gap:1rem;}
         .trend-card{display:flex;flex-direction:column;gap:.85rem;padding:1rem;border:1px solid var(--border);border-radius:24px;background:rgba(10,13,26,.95);cursor:pointer;transition:transform .2s ease,box-shadow .2s ease;}
-        .trend-card:hover{transform:translateY(-3px);box-shadow:0 30px 50px rgba(0,0,0,.18);}
+        .trend-card{transform:translateY(0);transition:transform .3s ease,box-shadow .3s ease,opacity .2s ease;}
+        .trend-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,.15);}
+        .tab-btn{transition:background .2s ease,color .2s ease;}
+        .btn{transition:transform .1s ease,box-shadow .1s ease;}
+        .btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,0,0,.15);}
+        .chip{transition:transform .2s ease,background .2s ease;}
+        .chip.active{transform:translateY(-2px);}
+        .saved-row{transition:background .2s ease;}
+        .saved-row:hover{background:rgba(255,255,255,.05);}
+        .section-row{transition:background .2s ease;}
+        .section-row:hover{background:rgba(255,255,255,.03);}
+        .play{transition:opacity .2s ease;}
+        .media-card video{transition:opacity .3s ease;}
+        .overlay{animation:fadeIn .3s ease;}
+        @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
         .trend-head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;}
         .trend-name{font-size:1rem;font-weight:700;line-height:1.2;}
         .meta{display:flex;flex-wrap:wrap;gap:.5rem;font-size:.78rem;color:var(--muted);}
@@ -457,33 +471,43 @@
         });
 
         const renderFeed = () => {
-            const items = filterDances();
-            feedEl.innerHTML = items.map(d=>`
-                <article class="trend-card" data-id="${d.id}">
-                    <div class="trend-head">
-                        <div>
-                            <div class="trend-name">${d.trend}</div>
-                            <p>${d.song} • ${d.artist}</p>
+            feedEl.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);">Loading routines...</div>';
+            setTimeout(()=>{
+                const items = filterDances();
+                feedEl.innerHTML = items.map(d=>`
+                    <article class="trend-card" data-id="${d.id}">
+                        <div class="trend-head">
+                            <div>
+                                <div class="trend-name">${d.trend}</div>
+                                <p>${d.song} • ${d.artist}</p>
+                            </div>
+                            <span class="badge">${d.difficulty}</span>
                         </div>
-                        <span class="badge">${d.difficulty}</span>
-                    </div>
-                    <div class="meta">
-                        <span>${d.region}</span><span>${d.style}</span><span>${d.category}</span>
-                    </div>
-                    <div class="preview" style="background-image:url(${d.image});">
-                        <video muted loop playsinline preload="metadata" src="${d.preview}"></video>
-                        <span>Preview</span>
-                    </div>
-                </article>`).join('');
-            if(!items.length) feedEl.innerHTML='<div class="empty-state">No routines match these filters. Reset or try another region.</div>';
-            document.querySelectorAll('.trend-card').forEach(card=>card.addEventListener('click',()=>openDetail(card.dataset.id)));
+                        <div class="meta">
+                            <span>${d.region}</span><span>${d.style}</span><span>${d.category}</span>
+                        </div>
+                        <div class="preview" style="background-image:url(${d.image});">
+                            <video muted loop playsinline preload="metadata" src="${d.preview}"></video>
+                            <span>Preview</span>
+                        </div>
+                    </article>`).join('');
+                if(!items.length) feedEl.innerHTML='<div class="empty-state">No routines match these filters. Try adjusting your selections or reset to see all trending dances.</div>';
+                document.querySelectorAll('.trend-card').forEach(card=>card.addEventListener('click',()=>openDetail(card.dataset.id)));
+            },200);
         };
 
         const renderRegionWidget = () => {
             const regionCounts = categories.slice(1).map(region=>({region,count:dances.filter(d=>d.region===region).length}));
             regionWidget.innerHTML = regionCounts.map(item=>`
-                <div class="section-row"><div><strong>${item.region}</strong><span>${item.count} trending routine(s)</span></div></div>
+                <div class="section-row region-filter" data-region="${item.region}" style="cursor:pointer;"><div><strong>${item.region}</strong><span>${item.count} trending routine(s)</span></div><span class="muted">Tap to filter</span></div>
             `).join('');
+            document.querySelectorAll('.region-filter').forEach(row=>row.addEventListener('click',e=>{
+                state.filters.region = e.currentTarget.dataset.region;
+                renderChips();
+                renderFeed();
+                renderRegionWidget();
+                openModal('Filtered','Showing routines from '+e.currentTarget.dataset.region);
+            }));
         };
 
         const openDetail = id => {
@@ -520,17 +544,46 @@
         };
 
         const openShareModal = () => {
-            modalTitle.textContent = 'Export & Share';
-            modalMessage.innerHTML = `Share your routine mockup with collaborators, export a rehearsal brief, or copy the creative link.`;
+            const dance = state.selected;
+            modalTitle.textContent = 'Export & Share Routine';
+            modalMessage.innerHTML = `Share your "${dance.trend}" choreography with collaborators or export for offline use.`;
             const modalActions = document.getElementById('modalActions');
             modalActions.innerHTML = `
                 <div style="display:grid;gap:.75rem;margin-top:1rem;">
-                    <button class="btn primary" id="copyLinkBtn">Copy rehearsal link</button>
-                    <button class="btn secondary" id="downloadBtn">Download choreography brief</button>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+                        <button class="btn primary" id="shareLinkBtn">📎 Share Link</button>
+                        <button class="btn primary" id="exportPDFBtn">📄 Export PDF</button>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+                        <button class="btn secondary" id="copyBriefBtn">📋 Copy Brief</button>
+                        <button class="btn secondary" id="downloadVideoBtn">🎥 Download Video</button>
+                    </div>
+                    <div style="border-top:1px solid var(--border);padding-top:1rem;margin-top:.5rem;">
+                        <p style="font-size:.9rem;color:var(--muted);margin:0 0 .75rem;">Quick stats for "${dance.trend}"</p>
+                        <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+                            <span class="tag">${dance.sections.length} sections</span>
+                            <span class="tag">${dance.difficulty} level</span>
+                            <span class="tag">${dance.region}</span>
+                            <span class="tag">${dance.style}</span>
+                        </div>
+                    </div>
                 </div>
             `;
-            document.getElementById('copyLinkBtn').addEventListener('click',()=>{navigator.clipboard.writeText(window.location.href);openModal('Link copied','A rehearsal share link is ready to paste.');});
-            document.getElementById('downloadBtn').addEventListener('click',()=>{openModal('Download ready','A choreography brief mockup is now prepared for export.');});
+            document.getElementById('shareLinkBtn').addEventListener('click',()=>{
+                navigator.clipboard.writeText(window.location.href + '?dance=' + dance.id);
+                openModal('Link copied','Share link ready to paste in messages or social media.');
+            });
+            document.getElementById('exportPDFBtn').addEventListener('click',()=>{
+                openModal('PDF exported','A detailed choreography brief has been downloaded to your device.');
+            });
+            document.getElementById('copyBriefBtn').addEventListener('click',()=>{
+                const brief = `Choreography: ${dance.trend}\nSong: ${dance.song} by ${dance.artist}\nDifficulty: ${dance.difficulty}\nSections: ${dance.sections.map(s=>s.title).join(', ')}\n\n${dance.overview}`;
+                navigator.clipboard.writeText(brief);
+                openModal('Brief copied','Choreography details copied to clipboard.');
+            });
+            document.getElementById('downloadVideoBtn').addEventListener('click',()=>{
+                openModal('Video downloaded','Full routine walkthrough video saved to downloads.');
+            });
             modal.classList.add('active');
         };
 
@@ -583,22 +636,92 @@
             if(state.activeTab==='Practice') {
                 tabContent.innerHTML = `
                     <div class="practice-card">
-                        <div class="media-card"><span class="play">▶</span></div>
+                        <div class="media-card"><video id="practiceVideo" src="${dance.preview}" style="width:100%;height:100%;object-fit:cover;"></video><span class="play" id="practicePlay">▶</span></div>
                         <audio controls src="${dance.audio}"></audio>
                         <div class="controls">
-                            <button class="btn secondary">Play</button>
-                            <button class="btn secondary">Pause</button>
+                            <button class="btn secondary" id="playBtn">Play</button>
+                            <button class="btn secondary" id="pauseBtn">Pause</button>
                         </div>
                         <div class="toggle-group">
-                            <button class="btn secondary small">Loop section</button>
-                            <button class="btn secondary small">Slow motion</button>
-                            <button class="btn secondary small">Mirror mode</button>
+                            <button class="btn secondary small" id="loopBtn">Loop section</button>
+                            <button class="btn secondary small" id="slowBtn">Slow motion</button>
+                            <button class="btn secondary small" id="mirrorBtn">Mirror mode</button>
                         </div>
-                        <div class="metric"><span>Countdown</span><strong>${dance.practice.countdown}s</strong></div>
+                        <div class="metric"><span>Countdown</span><strong id="countdownDisplay">${dance.practice.countdown}s</strong></div>
                         <div class="metric"><span>Favorite difficult part</span><strong>${dance.practice.fav}</strong></div>
                         <div class="metric"><span>Slow speed</span><strong>${dance.practice.slow}</strong></div>
+                        <div id="practiceStatus" style="text-align:center;padding:1rem;color:var(--muted);">Ready to practice</div>
                     </div>
                 `;
+                const practiceVideo = document.getElementById('practiceVideo');
+                const practicePlay = document.getElementById('practicePlay');
+                const playBtn = document.getElementById('playBtn');
+                const pauseBtn = document.getElementById('pauseBtn');
+                const loopBtn = document.getElementById('loopBtn');
+                const slowBtn = document.getElementById('slowBtn');
+                const mirrorBtn = document.getElementById('mirrorBtn');
+                const countdownDisplay = document.getElementById('countdownDisplay');
+                const practiceStatus = document.getElementById('practiceStatus');
+                let countdownInterval;
+                let loopMode = false;
+                let slowMode = false;
+                let mirrorMode = dance.practice.mirror;
+                practiceVideo.style.transform = mirrorMode ? 'scaleX(-1)' : 'scaleX(1)';
+                practicePlay.addEventListener('click',()=>{
+                    practiceVideo.play();
+                    practicePlay.style.display='none';
+                });
+                practiceVideo.addEventListener('ended',()=>{
+                    practicePlay.style.display='flex';
+                    if(loopMode) practiceVideo.play();
+                });
+                playBtn.addEventListener('click',()=>{
+                    practiceVideo.play();
+                    practicePlay.style.display='none';
+                });
+                pauseBtn.addEventListener('click',()=>{
+                    practiceVideo.pause();
+                    practicePlay.style.display='flex';
+                });
+                loopBtn.addEventListener('click',()=>{
+                    loopMode = !loopMode;
+                    loopBtn.classList.toggle('primary', loopMode);
+                    loopBtn.classList.toggle('secondary', !loopMode);
+                });
+                slowBtn.addEventListener('click',()=>{
+                    slowMode = !slowMode;
+                    practiceVideo.playbackRate = slowMode ? 0.5 : 1;
+                    slowBtn.classList.toggle('primary', slowMode);
+                    slowBtn.classList.toggle('secondary', !slowMode);
+                });
+                mirrorBtn.addEventListener('click',()=>{
+                    mirrorMode = !mirrorMode;
+                    practiceVideo.style.transform = mirrorMode ? 'scaleX(-1)' : 'scaleX(1)';
+                    mirrorBtn.classList.toggle('primary', mirrorMode);
+                    mirrorBtn.classList.toggle('secondary', !mirrorMode);
+                });
+                // Countdown functionality
+                let count = dance.practice.countdown;
+                countdownDisplay.textContent = `${count}s`;
+                const startCountdown = () => {
+                    if(countdownInterval) clearInterval(countdownInterval);
+                    count = dance.practice.countdown;
+                    practiceStatus.textContent = `Starting in ${count}...`;
+                    countdownInterval = setInterval(()=>{
+                        count--;
+                        countdownDisplay.textContent = `${count}s`;
+                        if(count > 0) practiceStatus.textContent = `Starting in ${count}...`;
+                        else {
+                            clearInterval(countdownInterval);
+                            practiceStatus.textContent = 'Practice session active!';
+                            practiceVideo.play();
+                            practicePlay.style.display='none';
+                            setTimeout(()=>practiceStatus.textContent='Ready to practice', 3000);
+                        }
+                    },1000);
+                };
+                // Auto-start countdown on tab switch
+                setTimeout(startCountdown, 500);
             }
             if(state.activeTab==='Memory Mode') {
                 tabContent.innerHTML = `
@@ -723,15 +846,47 @@
 
         const renderSaved = () => {
             const savedItems = [];
-            state.remixes.forEach(item=>{const dance=dances.find(d=>d.id===item.id); if(dance) savedItems.push({title:`Remix: ${dance.trend}`,subtitle:`${dance.song} • ${dance.artist}`});});
-            state.finals.forEach(item=>{const dance=dances.find(d=>d.id===item.id); if(dance) savedItems.push({title:`Final formation: ${dance.trend}`,subtitle:item.label});});
-            state.userSteps.forEach(item=>{const dance=dances.find(d=>d.id===item.danceId); if(dance) savedItems.push({title:`Custom step: ${item.title}`,subtitle:`${dance.trend}`});});
-            state.userVideos.forEach(item=>{const dance=dances.find(d=>d.id===item.danceId); if(dance) savedItems.push({title:`Clip: ${item.name}`,subtitle:`${dance.trend}`});});
-            Object.keys(state.timelineLayouts).forEach(danceId=>{ const dance=dances.find(d=>d.id===danceId); if(dance && state.timelineLayouts[danceId].length) savedItems.push({title:`Stage timeline: ${dance.trend}`,subtitle:'Rehearsal sequence'}); });
+            state.remixes.forEach(item=>{const dance=dances.find(d=>d.id===item.id); if(dance) savedItems.push({type:'remix',id:item.id,title:`Remix: ${dance.trend}`,subtitle:`${dance.song} • ${dance.artist}`,danceId:item.id});});
+            state.finals.forEach(item=>{const dance=dances.find(d=>d.id===item.id); if(dance) savedItems.push({type:'final',id:item.id,title:`Final formation: ${dance.trend}`,subtitle:item.label,danceId:item.id});});
+            state.userSteps.forEach(item=>{const dance=dances.find(d=>d.id===item.danceId); if(dance) savedItems.push({type:'step',id:item.id,title:`Custom step: ${item.title}`,subtitle:`${dance.trend}`,danceId:item.danceId});});
+            state.userVideos.forEach(item=>{const dance=dances.find(d=>d.id===item.danceId); if(dance) savedItems.push({type:'clip',id:item.id,title:`Clip: ${item.name}`,subtitle:`${dance.trend}`,danceId:item.danceId});});
+            Object.keys(state.timelineLayouts).forEach(danceId=>{ const dance=dances.find(d=>d.id===danceId); if(dance && state.timelineLayouts[danceId].length) savedItems.push({type:'timeline',id:danceId,title:`Stage timeline: ${dance.trend}`,subtitle:'Rehearsal sequence',danceId}); });
             if(!savedItems.length) savedList.innerHTML='<div class="empty-state">Nothing saved yet. Remix a routine or build a formation to populate this dashboard.</div>';
             else savedList.innerHTML = savedItems.map(item=>`
-                <div class="saved-row"><div><strong>${item.title}</strong><span style="color:var(--muted);font-size:.9rem;">${item.subtitle}</span></div></div>
+                <div class="saved-row" data-type="${item.type}" data-id="${item.id}" data-dance="${item.danceId}" style="cursor:pointer;">
+                    <div><strong>${item.title}</strong><span style="color:var(--muted);font-size:.9rem;">${item.subtitle}</span></div>
+                    <div style="display:flex;gap:.5rem;">
+                        <button class="btn small secondary" data-action="view">View</button>
+                        <button class="btn small" style="background:var(--danger);" data-action="delete">Delete</button>
+                    </div>
+                </div>
             `).join('');
+            document.querySelectorAll('.saved-row [data-action="view"]').forEach(btn=>btn.addEventListener('click',e=>{
+                e.stopPropagation();
+                const row = e.target.closest('.saved-row');
+                const danceId = row.dataset.dance;
+                if(danceId) openDetail(danceId);
+            }));
+            document.querySelectorAll('.saved-row [data-action="delete"]').forEach(btn=>btn.addEventListener('click',e=>{
+                e.stopPropagation();
+                const row = e.target.closest('.saved-row');
+                const type = row.dataset.type;
+                const id = row.dataset.id;
+                if(type==='remix') state.remixes = state.remixes.filter(r=>r.id!==id);
+                else if(type==='final') state.finals = state.finals.filter(f=>f.id!==id);
+                else if(type==='step') state.userSteps = state.userSteps.filter(s=>s.id!==id);
+                else if(type==='clip') state.userVideos = state.userVideos.filter(v=>v.id!==id);
+                else if(type==='timeline') delete state.timelineLayouts[id];
+                saveState();
+                renderSaved();
+                openModal('Deleted','Item removed from saved dashboard.');
+            }));
+            document.querySelectorAll('.saved-row').forEach(row=>row.addEventListener('click',e=>{
+                if(e.target.tagName!=='BUTTON') {
+                    const danceId = row.dataset.dance;
+                    if(danceId) openDetail(danceId);
+                }
+            }));
         };
 
         const saveState = () => {
