@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero-G Dance Experience</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #070924;
+            --bg-secondary: #0B1A3E;
+            --accent: #00F0FF;
+            --accent-glow: rgba(0, 240, 255, 0.35);
+            --magenta-glow: rgba(255, 0, 128, 0.35);
+            --amber-glow: rgba(255, 200, 80, 0.35);
+            --text-primary: #F7F9FF;
+            --text-secondary: #A7B3D1;
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 0.06em;
+        }
+
+        .label {
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-size: 0.75rem;
+        }
+
+        /* Starfield Background */
+        .starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 230px 80px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 300px 150px, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 350px 50px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 420px 180px, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 500px 90px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 580px 140px, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 650px 30px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 720px 160px, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 800px 70px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 880px 190px, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 950px 110px, rgba(255,255,255,0.3), transparent);
+            background-size: 1000px 200px;
+            animation: starfieldDrift 100s linear infinite;
+        }
+
+        @keyframes starfieldDrift {
+            from { background-position: 0 0; }
+            to { background-position: 1000px 0; }
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 4vw;
+            z-index: 1000;
+            background: linear-gradient(to bottom, rgba(7, 9, 36, 0.9), transparent);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.08em;
+        }
+
+        .logo span:first-child {
+            color: var(--accent);
+            text-shadow: 0 0 18px var(--accent-glow);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        /* Zero-G Mode Toggle */
+        .zero-g-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(7, 9, 36, 0.9);
+            border: 1px solid var(--accent);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .zero-g-toggle:hover {
+            background: rgba(0, 240, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        .zero-g-toggle.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .zero-g-toggle .icon {
+            font-size: 1.2rem;
+        }
+
+        .zero-g-toggle .text {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Sections */
+        section {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 6rem 6vw;
+            z-index: 1;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .hero-image-container {
+            position: relative;
+            width: 62vw;
+            max-width: 900px;
+            margin-bottom: 2rem;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: auto;
+            border-radius: 18px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-image::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--accent), transparent);
+            z-index: 3;
+        }
+
+        .signal-rings {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 120%;
+            z-index: 1;
+        }
+
+        .signal-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 50%;
+            animation: pulseRing 4s ease-in-out infinite;
+        }
+
+        .signal-ring:nth-child(1) {
+            width: 80%;
+            height: 80%;
+            animation-delay: 0s;
+        }
+
+        .signal-ring:nth-child(2) {
+            width: 100%;
+            height: 100%;
+            animation-delay: 1.3s;
+        }
+
+        .signal-ring:nth-child(3) {
+            width: 120%;
+            height: 120%;
+            animation-delay: 2.6s;
+        }
+
+        @keyframes pulseRing {
+            0%, 100% { opacity: 0.1; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.25; transform: translate(-50%, -50%) scale(1.02); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .hero h1 span {
+            display: block;
+        }
+
+        .hero h1 .accent {
+            color: var(--accent);
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg-primary);
+            box-shadow: 0 0 25px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 30px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--card-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        /* Section Headers */
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 18px var(--accent-glow);
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Trending Regions Section */
+        .regions-section {
+            background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+        }
+
+        .regions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        .region-card {
+            position: relative;
+            height: 52vh;
+            min-height: 400px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .region-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 40%, rgba(0, 240, 255, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .region-card:hover::before,
+        .region-card.active::before {
+            opacity: 1;
+        }
+
+        .region-card:hover,
+        .region-card.active {
+            transform: translateY(-10px);
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .region-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            transition: transform 0.4s ease;
+        }
+
+        .region-card:hover .icon {
+            transform: rotate(10deg) scale(1.1);
+        }
+
+        .region-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .region-card .location {
+            color: var(--text-secondary);
+            position: relative;
+            z-index: 1;
+        }
+
+        .region-card .glow-border {
+            position: absolute;
+            inset: -1px;
+            border-radius: 18px;
+            border: 1px solid transparent;
+            background: linear-gradient(135deg, var(--accent), transparent, var(--accent)) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .region-card:hover .glow-border,
+        .region-card.active .glow-border {
+            opacity: 1;
+        }
+
+        /* Region Detail Panel */
+        .region-detail {
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 9, 36, 0.98);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            padding: 6rem 6vw;
+            overflow-y: auto;
+        }
+
+        .region-detail.active {
+            display: flex;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .region-detail-content {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            align-items: center;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            background: none;
+            border: 1px solid var(--card-border);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+
+        .video-container iframe,
+        .video-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: none;
+        }
+
+        .video-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .video-overlay:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .play-button {
+            width: 80px;
+            height: 80px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px var(--accent-glow);
+            transition: transform 0.3s ease;
+            animation: pulsePlay 2s ease-in-out infinite;
+        }
+
+        @keyframes pulsePlay {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .play-button:hover {
+            transform: scale(1.1);
+        }
+
+        .play-button::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 20px solid var(--bg-primary);
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            margin-left: 5px;
+        }
+
+        .region-info h3 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .region-info .style-description {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+
+        .trending-info {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .trending-info .label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .trending-info .song {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .trending-info .artist {
+            color: var(--text-secondary);
+        }
+
+        /* Trending Dance Feed */
+        .feed-section {
+            background: var(--bg-primary);
+            padding: 6rem 6vw;
+        }
+
+        .feed-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 50px;
+            color: var(--text-secondary);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(0, 240, 255, 0.1);
+        }
+
+        .feed-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .dance-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .dance-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 40px var(--accent-glow);
+        }
+
+        .dance-card.highlighted {
+            border-color: var(--accent);
+            box-shadow: 0 0 40px var(--accent-glow);
+            animation: highlightPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes highlightPulse {
+            0%, 100% { box-shadow: 0 0 40px var(--accent-glow); }
+            50% { box-shadow: 0 0 60px var(--accent-glow); }
+        }
+
+        .dance-card-image {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            overflow: hidden;
+        }
+
+        .dance-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .dance-card:hover .dance-card-image img {
+            transform: scale(1.04);
+        }
+
+        .dance-card-content {
+            padding: 1.5rem;
+        }
+
+        .dance-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .dance-card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .dance-card-song {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .difficulty-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .difficulty-easy {
+            background: rgba(0, 255, 136, 0.15);
+            color: #00FF88;
+        }
+
+        .difficulty-medium {
+            background: rgba(255, 200, 80, 0.15);
+            color: #FFC850;
+        }
+
+        .difficulty-hard {
+            background: rgba(255, 0, 128, 0.15);
+            color: #FF0080;
+        }
+
+        .dance-card-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .dance-card-meta span {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .dance-card-meta .label {
+            color: var(--accent);
+            margin-right: 0.3rem;
+        }
+
+        .explore-btn {
+            width: 100%;
+            padding: 0.875rem;
+            background: transparent;
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .explore-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+        }
+
+        /* Mission Mode Section */
+        .mission-section {
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+            position: relative;
+        }
+
+        .mission-section::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            border: 1px solid rgba(0, 240, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .mission-section::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            border: 1px solid rgba(0, 240, 255, 0.08);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .mission-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .mission-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .mission-card:nth-child(2) {
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        .mission-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .mission-card .duration {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .mission-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .mission-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mission-card .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            background: var(--bg-primary);
+            position: relative;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 300px;
+            background: radial-gradient(ellipse at center bottom, rgba(0, 240, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+        }
+
+        .cta-section h2 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .cta-section p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 4rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        /* Zero-G Mode Active States */
+        body.zero-g-active .region-card,
+        body.zero-g-active .dance-card,
+        body.zero-g-active .mission-card {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        body.zero-g-active .region-card:nth-child(2),
+        body.zero-g-active .dance-card:nth-child(2),
+        body.zero-g-active .mission-card:nth-child(2) {
+            animation-delay: -1.5s;
+        }
+
+        body.zero-g-active .region-card:nth-child(3),
+        body.zero-g-active .dance-card:nth-child(3),
+        body.zero-g-active .mission-card:nth-child(3) {
+            animation-delay: -3s;
+        }
+
+        body.zero-g-active .region-card:nth-child(4),
+        body.zero-g-active .dance-card:nth-child(4) {
+            animation-delay: -4.5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        body.zero-g-active .region-card:hover,
+        body.zero-g-active .dance-card:hover,
+        body.zero-g-active .mission-card:hover {
+            animation-play-state: paused;
+        }
+
+        /* Dance Detail Modal */
+        .dance-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 9, 36, 0.98);
+            z-index: 3000;
+            display: none;
+            flex-direction: column;
+            padding: 4rem 6vw;
+            overflow-y: auto;
+        }
+
+        .dance-modal.active {
+            display: flex;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .dance-modal-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .dance-modal-video {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 18px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .dance-modal-video iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .dance-modal-info h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .dance-modal-info .meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .dance-modal-info .meta span {
+            color: var(--text-secondary);
+        }
+
+        .dance-steps {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .dance-steps h4 {
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .dance-steps ol {
+            padding-left: 1.5rem;
+        }
+
+        .dance-steps li {
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        /* Gamification Progress */
+        .progress-indicator {
+            position: fixed;
+            top: 50%;
+            left: 2rem;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 500;
+        }
+
+        .progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .regions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .region-card {
+                height: 35vh;
+                min-height: 280px;
+            }
+
+            .region-detail-content {
+                grid-template-columns: 1fr;
+            }
+
+            .mission-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .mission-card:nth-child(2) {
+                transform: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-image-container {
+                width: 90vw;
+            }
+
+            .regions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feed-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+
+            .zero-g-toggle {
+                bottom: 1rem;
+                right: 1rem;
+                padding: 0.6rem 1rem;
+            }
+
+            .zero-g-toggle .text {
+                display: none;
+            }
+
+            .progress-indicator {
+                display: none;
+            }
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            html {
+                scroll-behavior: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Starfield Background -->
+    <div class="starfield"></div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="logo">
+            <span>ZERO-G</span> <span>DANCE</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#regions">Regions</a></li>
+            <li><a href="#feed">Feed</a></li>
+            <li><a href="#mission">Mission</a></li>
+            <li><a href="#cta">About</a></li>
+        </ul>
+    </nav>
+
+    <!-- Zero-G Mode Toggle -->
+    <button class="zero-g-toggle" id="zeroGToggle">
+        <span class="icon">🚀</span>
+        <span class="text">Zero-G Mode</span>
+    </button>
+
+    <!-- Progress Indicator -->
+    <div class="progress-indicator">
+        <div class="progress-dot active" data-section="hero"></div>
+        <div class="progress-dot" data-section="regions"></div>
+        <div class="progress-dot" data-section="feed"></div>
+        <div class="progress-dot" data-section="mission"></div>
+        <div class="progress-dot" data-section="cta"></div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-image-container">
+            <div class="signal-rings">
+                <div class="signal-ring"></div>
+                <div class="signal-ring"></div>
+                <div class="signal-ring"></div>
+            </div>
+            <img src="https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?auto=format&fit=crop&w=1400&q=80" alt="Dancers in dynamic poses" class="hero-image">
+        </div>
+        <div class="hero-content">
+            <h1>
+                <span class="accent">ZERO-G DANCE</span>
+                <span>EXPERIENCE</span>
+            </h1>
+            <p class="hero-subtitle">Explore global dance trends reimagined for microgravity. From K-pop to Afrobeats, discover movement without limits.</p>
+            <div class="hero-buttons">
+                <a href="#regions" class="btn btn-primary">Explore Regions</a>
+                <button class="btn btn-secondary" id="heroZeroGBtn">Enter Zero-G Mode</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trending Regions Section -->
+    <section class="regions-section" id="regions">
+        <div class="section-header">
+            <h2>TODAY'S TRENDING REGIONS</h2>
+            <p>Click a region to explore its dance culture</p>
+        </div>
+        <div class="regions-grid">
+            <div class="region-card" data-region="kpop">
+                <div class="glow-border"></div>
+                <div class="icon">🎤</div>
+                <h3>K-pop</h3>
+                <span class="location label">Seoul</span>
+            </div>
+            <div class="region-card" data-region="afrobeats">
+                <div class="glow-border"></div>
+                <div class="icon">🪘</div>
+                <h3>Afrobeats</h3>
+                <span class="location label">West Africa</span>
+            </div>
+            <div class="region-card" data-region="latin">
+                <div class="glow-border"></div>
+                <div class="icon">🔥</div>
+                <h3>Latin</h3>
+                <span class="location label">Latin America</span>
+            </div>
+            <div class="region-card" data-region="hiphop">
+                <div class="glow-border"></div>
+                <div class="icon">💿</div>
+                <h3>Hip-hop</h3>
+                <span class="location label">US / Global</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Region Detail Panel -->
+    <div class="region-detail" id="regionDetail">
+        <button class="back-btn" id="backToRegions">
+            <span>←</span> Back to Regions
+        </button>
+        <div class="region-detail-content">
+            <div class="video-container">
+                <img id="regionImage" src="" alt="">
+                <div class="video-overlay" id="videoOverlay">
+                    <div class="play-button"></div>
+                </div>
+            </div>
+            <div class="region-info">
+                <h3 id="regionName"></h3>
+                <p class="style-description" id="regionDescription"></p>
+                <div class="trending-info">
+                    <span class="label">Trending Now</span>
+                    <div class="song" id="trendingSong"></div>
+                    <div class="artist" id="trendingArtist"></div>
+                </div>
+                <button class="btn btn-primary" id="viewInFeed">View in Trending Dance Feed</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trending Dance Feed Section -->
+    <section class="feed-section" id="feed">
+        <div class="section-header">
+            <h2>TRENDING DANCE FEED</h2>
+            <p>Discover the latest moves from around the world</p>
+        </div>
+        <div class="feed-filters">
+            <button class="filter-btn active" data-filter="all">All Styles</button>
+            <button class="filter-btn" data-filter="easy">Easy</button>
+            <button class="filter-btn" data-filter="medium">Medium</button>
+            <button class="filter-btn" data-filter="hard">Hard</button>
+        </div>
+        <div class="feed-grid" id="feedGrid">
+            <!-- Dance cards will be generated by JavaScript -->
+        </div>
+    </section>
+
+    <!-- Mission Mode Section -->
+    <section class="mission-section" id="mission">
+        <div class="section-header">
+            <h2>MISSION MODE</h2>
+            <p>Guided sessions designed for microgravity</p>
+        </div>
+        <div class="mission-grid">
+            <div class="mission-card" data-mission="warmup">
+                <div class="duration">5 min</div>
+                <h3>Warm-Up Orbit</h3>
+                <p>Loosen up without momentum. Perfect for starting your dance journey in zero gravity.</p>
+                <span class="difficulty-badge difficulty-easy">Easy</span>
+            </div>
+            <div class="mission-card" data-mission="groove">
+                <div class="duration">10 min</div>
+                <h3>Zero-G Groove</h3>
+                <p>Learn a short routine adapted for floating movement and spatial awareness.</p>
+                <span class="difficulty-badge difficulty-medium">Medium</span>
+            </div>
+            <div class="mission-card" data-mission="flow">
+                <div class="duration">15 min</div>
+                <h3>Deep Space Flow</h3>
+                <p>Full performance practice with advanced techniques for experienced dancers.</p>
+                <span class="difficulty-badge difficulty-hard">Hard</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section" id="cta">
+        <div class="cta-content">
+            <h2>READY TO MOVE?</h2>
+            <p>Zero-G Dance is built for explorers—on Earth and beyond. Start your journey through global dance culture today.</p>
+            <a href="#regions" class="btn btn-primary">Start Exploring</a>
+            <div class="footer-links">
+                <a href="#">Contact</a>
+                <a href="#">Privacy</a>
+                <a href="#">GitHub</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dance Detail Modal -->
+    <div class="dance-modal" id="danceModal">
+        <button class="back-btn" id="closeDanceModal">
+            <span>←</span> Close
+        </button>
+        <div class="dance-modal-content">
+            <div class="dance-modal-video">
+                <iframe id="modalVideo" src="" allowfullscreen></iframe>
+            </div>
+            <div class="dance-modal-info">
+                <h2 id="modalTitle"></h2>
+                <div class="meta">
+                    <span id="modalArtist"></span>
+                    <span id="modalRegion"></span>
+                    <span id="modalDifficulty"></span>
+                </div>
+                <p id="modalDescription"></p>
+                <div class="dance-steps">
+                    <h4>Key Moves</h4>
+                    <ol id="modalSteps">
+                        <!-- Steps will be populated by JS -->
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dance Data
+        const regionData = {
+            kpop: {
+                name: 'K-pop',
+                description: 'High-energy choreography with precise formations and synchronized movements. K-pop dance combines elements of hip-hop, jazz, and contemporary styles into visually stunning performances.',
+                trendingSong: 'Super Shy',
+                artist: 'NewJeans',
+                image: './images/thumb_kpop.jpg',
+                videoId: 'nJDWuX4YiR0'
+            },
+            afrobeats: {
+                name: 'Afrobeats',
+                description: 'Infectious rhythms with fluid body movements and expressive footwork. Afrobeats dance celebrates African musical heritage with energetic, celebratory moves.',
+                trendingSong: 'City Boys',
+                artist: 'Blaqbonez',
+                image: './images/thumb_afrobeats.jpg',
+                videoId: 'a9Q1T7t2M3E'
+            },
+            latin: {
+                name: 'Latin',
+                description: 'Passionate partner and solo dances featuring sensual hip movements, quick footwork, and dramatic flair. From salsa to reggaeton, Latin dance is all about expression.',
+                trendingSong: 'Provenza',
+                artist: 'Karol G',
+                image: './images/thumb_latin.jpg',
+                videoId: '8uJ1zfkVUQ4'
+            },
+            hiphop: {
+                name: 'Hip-hop',
+                description: 'Urban dance culture featuring breaking, popping, locking, and freestyle. Hip-hop dance emphasizes individuality, creativity, and connection to the music.',
+                trendingSong: 'Vibe',
+                artist: 'Taeyang',
+                image: './images/thumb_hiphop.jpg',
+                videoId: 'cXCBtT1SJ1Q'
+            }
+        };
+
+        const danceFeedData = [
+            {
+                id: 1,
+                name: 'Super Shy',
+                song: 'Super Shy',
+                artist: 'NewJeans',
+                region: 'K-pop',
+                image: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80',
+                style: 'K-pop',
+                difficulty: 'easy',
+                image: './images/card_supershy.jpg',
+                videoId: 'nJDWuX4YiR0',
+                description: 'A cute and energetic dance featuring playful arm movements and bouncy steps. Perfect for beginners!',
+                steps: ['Start with the signature arm wave', 'Add the bouncy step pattern', 'Practice the chorus pointing move', 'Combine with the shoulder shimmy']
+            },
+            {
+                id: 2,
+                name: 'City Boys',
+                song: 'City Boys',
+                artist: 'Blaqbonez',
+                region: 'Afrobeats',
+                image: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1200&q=80',
+                style: 'Afrobeats',
+                difficulty: 'medium',
+                image: './images/card_cityboys.jpg',
+                videoId: 'a9Q1T7t2M3E',
+                description: 'A smooth Afrobeats routine with confident swagger and rhythmic body isolations.',
+                steps: ['Master the shoulder roll', 'Add the legwork pattern', 'Practice the chest pop', 'Combine with arm gestures']
+            },
+            {
+                id: 3,
+                name: 'Provenza',
+                song: 'Provenza',
+                artist: 'Karol G',
+                region: 'Latin',
+                image: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1200&q=80',
+                style: 'Reggaeton',
+                difficulty: 'medium',
+                image: './images/card_provenza.jpg',
+                videoId: '8uJ1zfkVUQ4',
+                description: 'A sensual reggaeton dance with smooth hip movements and confident attitude.',
+                steps: ['Start with the hip roll', 'Add the arm styling', 'Practice the body wave', 'Combine with footwork']
+            },
+            {
+                id: 4,
+                name: 'Paint The Town',
+                song: 'Paint The Town',
+                artist: 'Loona',
+                region: 'K-pop',
+                image: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80',
+                style: 'K-pop',
+                difficulty: 'hard',
+                image: './images/card_paintthetown.jpg',
+                videoId: 'Z3E2l1rhcw4',
+                description: 'A powerful K-pop routine with sharp movements and complex formations.',
+                steps: ['Learn the sharp arm hits', 'Master the quick direction changes', 'Practice the formation transitions', 'Add the powerful finishing pose']
+            },
+            {
+                id: 5,
+                name: 'Soweto',
+                song: 'Soweto',
+                artist: 'Victony',
+                region: 'Afrobeats',
+                image: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=1200&q=80',
+                style: 'Amapiano',
+                difficulty: 'easy',
+                image: './images/card_soweto.jpg',
+                videoId: '2X7mN6m0lE8',
+                description: 'A laid-back amapiano dance with smooth grooves and relaxed vibes.',
+                steps: ['Start with the basic groove', 'Add the shoulder movement', 'Practice the leg slide', 'Combine with the arm swing']
+            },
+            {
+                id: 6,
+                name: 'Vibe',
+                song: 'Vibe',
+                artist: 'Taeyang',
+                region: 'Hip-hop',
+                image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1200&q=80',
+                style: 'Hip-hop',
+                difficulty: 'medium',
+                image: './images/card_vibe.jpg',
+                videoId: 'cXCBtT1SJ1Q',
+                description: 'A smooth hip-hop routine with R&B influences and stylish movements.',
+                steps: ['Master the body roll', 'Add the arm waves', 'Practice the footwork pattern', 'Combine with the head isolation']
+            }
+        ];
+
+        // DOM Elements
+        const zeroGToggle = document.getElementById('zeroGToggle');
+        const heroZeroGBtn = document.getElementById('heroZeroGBtn');
+        const regionCards = document.querySelectorAll('.region-card');
+        const regionDetail = document.getElementById('regionDetail');
+        const backToRegions = document.getElementById('backToRegions');
+        const viewInFeed = document.getElementById('viewInFeed');
+        const feedGrid = document.getElementById('feedGrid');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const danceModal = document.getElementById('danceModal');
+        const closeDanceModal = document.getElementById('closeDanceModal');
+        const progressDots = document.querySelectorAll('.progress-dot');
+
+        // State
+        let selectedRegion = null;
+        let zeroGMode = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDanceCards(danceFeedData);
+            setupEventListeners();
+            setupScrollObserver();
+        });
+
+        // Zero-G Mode Toggle
+        function toggleZeroGMode() {
+            zeroGMode = !zeroGMode;
+            document.body.classList.toggle('zero-g-active', zeroGMode);
+            zeroGToggle.classList.toggle('active', zeroGMode);
+            
+            if (zeroGMode) {
+                zeroGToggle.querySelector('.text').textContent = 'Zero-G: ON';
+            } else {
+                zeroGToggle.querySelector('.text').textContent = 'Zero-G Mode';
+            }
+        }
+
+        // Render Dance Cards
+        function renderDanceCards(dances) {
+            feedGrid.innerHTML = dances.map(dance => `
+                <div class="dance-card" data-id="${dance.id}" data-region="${dance.region.toLowerCase().replace(/\s+/g, '')}" data-difficulty="${dance.difficulty}">
+                    <div class="dance-card-image">
+                        <img src="${dance.image}" alt="${dance.name}">
+                    </div>
+                    <div class="dance-card-content">
+                        <div class="dance-card-header">
+                            <div>
+                                <div class="dance-card-title">${dance.name}</div>
+                                <div class="dance-card-song">${dance.song} — ${dance.artist}</div>
+                            </div>
+                            <span class="difficulty-badge difficulty-${dance.difficulty}">${dance.difficulty}</span>
+                        </div>
+                        <div class="dance-card-meta">
+                            <span><span class="label">Region:</span> ${dance.region}</span>
+                            <span><span class="label">Style:</span> ${dance.style}</span>
+                        </div>
+                        <button class="explore-btn">Explore Dance</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add click handlers to explore buttons
+            feedGrid.querySelectorAll('.explore-btn').forEach((btn, index) => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openDanceModal(dances[index]);
+                });
+            });
+        }
+
+        // Region Card Click
+        regionCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const regionKey = card.dataset.region;
+                selectedRegion = regionKey;
+                showRegionDetail(regionKey);
+            });
+        });
+
+        // Show Region Detail
+        function showRegionDetail(regionKey) {
+            const data = regionData[regionKey];
+            if (!data) return;
+
+            document.getElementById('regionName').textContent = data.name;
+            document.getElementById('regionDescription').textContent = data.description;
+            document.getElementById('trendingSong').textContent = data.trendingSong;
+            document.getElementById('trendingArtist').textContent = data.artist;
+            document.getElementById('regionImage').src = data.image;
+
+            regionDetail.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Back to Regions
+        backToRegions.addEventListener('click', () => {
+            regionDetail.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        // View in Feed
+        viewInFeed.addEventListener('click', () => {
+            regionDetail.classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // Scroll to feed and highlight matching card
+            const feedSection = document.getElementById('feed');
+            feedSection.scrollIntoView({ behavior: 'smooth' });
+
+            // Find and highlight matching card
+            setTimeout(() => {
+                const matchingCard = document.querySelector(`.dance-card[data-region="${selectedRegion}"]`);
+                if (matchingCard) {
+                    matchingCard.classList.add('highlighted');
+                    setTimeout(() => {
+                        matchingCard.classList.remove('highlighted');
+                    }, 3000);
+                }
+            }, 800);
+        });
+
+        // Video Overlay Click
+        document.getElementById('videoOverlay').addEventListener('click', () => {
+            if (selectedRegion && regionData[selectedRegion]) {
+                const videoId = regionData[selectedRegion].videoId;
+                const container = document.querySelector('.video-container');
+                container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" allowfullscreen></iframe>`;
+            }
+        });
+
+        // Filter Buttons
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const filter = btn.dataset.filter;
+                if (filter === 'all') {
+                    renderDanceCards(danceFeedData);
+                } else {
+                    const filtered = danceFeedData.filter(d => d.difficulty === filter);
+                    renderDanceCards(filtered);
+                }
+            });
+        });
+
+        // Open Dance Modal
+        function openDanceModal(dance) {
+            document.getElementById('modalVideo').src = `https://www.youtube.com/embed/${dance.videoId}`;
+            document.getElementById('modalTitle').textContent = dance.name;
+            document.getElementById('modalArtist').textContent = `🎵 ${dance.artist}`;
+            document.getElementById('modalRegion').textContent = `🌍 ${dance.region}`;
+            document.getElementById('modalDifficulty').textContent = `📊 ${dance.difficulty.charAt(0).toUpperCase() + dance.difficulty.slice(1)}`;
+            document.getElementById('modalDescription').textContent = dance.description;
+            
+            const stepsList = document.getElementById('modalSteps');
+            stepsList.innerHTML = dance.steps.map(step => `<li>${step}</li>`).join('');
+
+            danceModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close Dance Modal
+        closeDanceModal.addEventListener('click', () => {
+            danceModal.classList.remove('active');
+            document.getElementById('modalVideo').src = '';
+            document.body.style.overflow = '';
+        });
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            zeroGToggle.addEventListener('click', toggleZeroGMode);
+            heroZeroGBtn.addEventListener('click', toggleZeroGMode);
+
+            // Mission cards
+            document.querySelectorAll('.mission-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const mission = card.dataset.mission;
+                    alert(`Starting ${card.querySelector('h3').textContent}...\n\nIn a full implementation, this would launch a guided dance session!`);
+                });
+            });
+
+            // Close modals on escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    regionDetail.classList.remove('active');
+                    danceModal.classList.remove('active');
+                    document.getElementById('modalVideo').src = '';
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        // Scroll Observer for Progress Indicator
+        function setupScrollObserver() {
+            const sections = ['hero', 'regions', 'feed', 'mission', 'cta'];
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const sectionId = entry.target.id;
+                        const dotIndex = sections.indexOf(sectionId);
+                        if (dotIndex !== -1) {
+                            progressDots.forEach((dot, index) => {
+                                dot.classList.toggle('active', index === dotIndex);
+                            });
+                        }
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            sections.forEach(id => {
+                const section = document.getElementById(id);
+                if (section) observer.observe(section);
+            });
+        }
+
+        // Progress dot clicks
+        progressDots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                const sections = ['hero', 'regions', 'feed', 'mission', 'cta'];
+                const section = document.getElementById(sections[index]);
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
